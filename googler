@@ -73,11 +73,12 @@ from typing import (
 
 # Basic setup
 
-logging.basicConfig(format='[%(levelname)s] %(message)s')
 logger = logging.getLogger()
+logger.setLevel(logging.ERROR)
 fh = logging.FileHandler('error.LOG')
 fh.setFormatter(logging.Formatter('[%(levelname)s]-[%(asctime)s] %(message)s'))
 logger.addHandler(fh)
+
 
 def sigint_handler(signum, frame):
     print('\nInterrupted.', file=sys.stderr)
@@ -3771,6 +3772,7 @@ def main():
 
         # Set logging level
         if opts.debug:
+            logging.basicConfig(format='[%(levelname)s] %(message)s')
             logger.setLevel(logging.DEBUG)
             logger.debug('googler version %s', _VERSION_)
             logger.debug('Python version %s', python_version())
