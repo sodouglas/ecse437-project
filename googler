@@ -72,7 +72,9 @@ from typing import (
 )
 
 # Basic setup
-
+logfile = open("error.LOG","r+")
+logfile.truncate(0)
+logfile.close()
 logger = logging.getLogger()
 logger.setLevel(logging.ERROR)
 fh = logging.FileHandler('error.LOG')
