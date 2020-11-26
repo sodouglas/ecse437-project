@@ -70,17 +70,19 @@ from typing import (
     Union,
     cast,
 )
+def setup_logger(logger_name, log_file, level=logging.INFO):
+    l = logging.getLogger(logger_name)
+    formatter = logging.Formatter('%(asctime)s : %(message)s')
+    fileHandler = logging.FileHandler(log_file, mode='w')
+    fileHandler.setFormatter(formatter)
 
-# Basic setup
-logfile = open("error.LOG","r+")
-logfile.truncate(0)
-logfile.close()
-logger = logging.getLogger()
-logger.setLevel(logging.ERROR)
-fh = logging.FileHandler('error.LOG')
-fh.setFormatter(logging.Formatter('[%(levelname)s]-[%(asctime)s] %(message)s'))
-logger.addHandler(fh)
+    l.setLevel(level)
+    l.addHandler(fileHandler)
 
+setup_logger('errlog', r'error.LOG')
+setup_logger('cmdlog', r'cmd.LOG')
+errlog = logging.getLogger('errlog')
+cmdlog = logging.getLogger('cmdlog')
 
 def sigint_handler(signum, frame):
     print('\nInterrupted.', file=sys.stderr)
@@ -227,7 +229,7 @@ class TrackedTextwrap:
             # be treated as a valid offset.
             self._coords.append((row, col))
         except AssertionError:
-            logger.exception("TrackedTextwrap: the impossible happened at offset {} of text {!r}".format(
+            errlog.exception("TrackedTextwrap: the impossible happened at offset {} of text {!r}".format(
                     offset, self._original
                 ))
             raise RuntimeError(
@@ -407,7 +409,7 @@ class Node(object):
             index = parent.children.index(self)
             return parent.children[index + 1 :]
         except ValueError:  # pragma: no cover
-            logger.exception("node is not found in children of its parent")
+            errlog.exception("node is not found in children of its parent")
             raise ValueError("node is not found in children of its parent")
 
     def next_element_sibling(self) -> Optional["ElementNode"]:
@@ -441,7 +443,7 @@ class Node(object):
             else:
                 return []
         except ValueError:  # pragma: no cover
-            logger.exception("node is not found in children of its parent")
+            errlog.exception("node is not found in children of its parent")
             raise ValueError("node is not found in children of its parent")
 
     def previous_element_sibling(self) -> Optional["ElementNode"]:
@@ -709,11 +711,11 @@ class DOMBuilder(HTMLParser):
         while self._stack and not self._stack[-1]._partial:
             children.append(self._stack.pop())
         if not self._stack:
-            logger.exception(self.getpos(), "extra end tag: %s" % repr(tag))
+            errlog.exception(self.getpos(), "extra end tag: %s" % repr(tag))
             raise DOMBuilderException(self.getpos(), "extra end tag: %s" % repr(tag))
         parent = self._stack[-1]
         if parent.tag != tag:
-            logger.exception(self.getpos(),
+            errlog.exception(self.getpos(),
                 "expecting end tag %s, got %s" % (repr(parent.tag), repr(tag)))
             raise DOMBuilderException(
                 self.getpos(),
@@ -768,10 +770,10 @@ class DOMBuilder(HTMLParser):
         root tag is not closed yet.
         """
         if not self._stack:
-            logger.exception(self.getpos(), "no root tag")
+            errlog.exception(self.getpos(), "no root tag")
             raise DOMBuilderException(self.getpos(), "no root tag")
         if self._stack[0]._partial:
-            logger.exception(self.getpos(), "root tag not closed yet")
+            errlog.exception(self.getpos(), "root tag not closed yet")
             raise DOMBuilderException(self.getpos(), "root tag not closed yet")
         return self._stack[0]
 
@@ -876,7 +878,7 @@ class SelectorGroup:
             selector, i = Selector.from_str(s, i)
             selectors.append(selector)
         if not selectors:
-            logger.exception(s, i, "selector group is empty")
+            errlog.exception(s, i, "selector group is empty")
             raise SelectorParserException(s, i, "selector group is empty")
         return cls(selectors)
 
@@ -1132,7 +1134,7 @@ class Selector:
             # Match[str].
             if TYPE_SEL.match(s, i):
                 if tag:
-                    logger.exception(s, i, "multiple type selectors found")
+                    errlog.exception(s, i, "multiple type selectors found")
                     raise SelectorParserException(s, i, "multiple type selectors found")
                 m = cast(Match[str], TYPE_SEL.match(s, i))
                 tag = m.group()
@@ -1168,7 +1170,7 @@ class Selector:
                 elif op == "*=":
                     type = AttributeSelectorType.ASTERISK
                 else:  # pragma: no cover
-                    logger.exception(
+                    errlog.exception(
                         s,
                         i,
                         "unrecognized operator %s in attribute selector" % repr(op))
@@ -1184,17 +1186,17 @@ class Selector:
                 classes.append(m.group(1))
             elif ID_SEL.match(s, i):
                 if id:
-                    logger.exception(s, i, "multiple id selectors found")
+                    errlog.exception(s, i, "multiple id selectors found")
                     raise SelectorParserException(s, i, "multiple id selectors found")
                 m = cast(Match[str], ID_SEL.match(s, i))
                 id = m.group(1)
             elif PSEUDO_CLASS_SEL.match(s, i):
-                logger.exception(s, i, "pseudo-classes not supported")
+                errlog.exception(s, i, "pseudo-classes not supported")
                 raise SelectorParserException(s, i, "pseudo-classes not supported")
             elif PSEUDO_ELEM_SEL.match(s, i):
                 raise SelectorParserException(s, i, "pseudo-elements not supported")
             else:
-                logger.exception(s, i, "expecting simple selector, found none")
+                errlog.exception(s, i, "expecting simple selector, found none")
                 raise SelectorParserException(
                     s, i, "expecting simple selector, found none"
                 )
@@ -1223,7 +1225,7 @@ class Selector:
             i = m.end()
 
             if combinator and i == len(s):
-                logger.exception(s, i, "unexpected end at combinator")
+                errlog.exception(s, i, "unexpected end at combinator")
                 raise SelectorParserException(s, i, "unexpected end at combinator")
 
             selector = cls(
@@ -1247,7 +1249,7 @@ class Selector:
             combinator = None
 
         if not selector:
-            logger.exception(s, i, "selector is empty")
+            errlog.exception(s, i, "selector is empty")
             raise SelectorParserException(s, i, "selector is empty")
 
         return selector, i
@@ -1478,7 +1480,7 @@ def open_url(url):
     Note: If a GUI browser is indeed found, this option ignores the program
           option `show-browser-logs`
     """
-    logger.debug('Opening %s', url)
+    errlog.debug('Opening %s', url)
 
     # Custom URL handler gets max priority
     if hasattr(open_url, 'url_handler'):
@@ -1490,7 +1492,7 @@ def open_url(url):
         browser_output = open_url.suppress_browser_output
         for name in [b for b in webbrowser._tryorder if b not in text_browsers]:
             browser = webbrowser.get(name)
-            logger.debug(browser)
+            errlog.debug(browser)
 
             # Found a GUI browser, suppress browser output
             open_url.suppress_browser_output = True
@@ -1587,14 +1589,14 @@ def time_it(description=None):
         @functools.wraps(func)
         def wrapped(*args, **kwargs):
             # Only profile in debug mode.
-            if not logger.isEnabledFor(logging.DEBUG):
+            if not errlog.isEnabledFor(logging.DEBUG):
                 return func(*args, **kwargs)
 
             import time
             mark = time.perf_counter()
             ret = func(*args, **kwargs)
             duration = time.perf_counter() - mark
-            logger.debug('%s completed in \x1b[33m%.3fs\x1b[0m', description or func.__name__, duration)
+            errlog.debug('%s completed in \x1b[33m%.3fs\x1b[0m', description or func.__name__, duration)
             return ret
 
         return wrapped
@@ -1625,7 +1627,7 @@ class HardenedHTTPSConnection(HTTPSConnection):
                 sock.setsockopt(socket.SOL_SOCKET, socket.SO_RCVBUF, 524288)
             except OSError:
                 # Doesn't work on Windows' Linux subsystem (#179)
-                logger.debug('setsockopt failed')
+                errlog.debug('setsockopt failed')
 
         if getattr(self, '_tunnel_host', None):
             self.sock = sock
@@ -1671,13 +1673,13 @@ class HardenedHTTPSConnection(HTTPSConnection):
                 # Break explicitly a reference cycle
                 err = None
                 self.address_family = af
-                logger.debug('Opened socket to %s:%d',
+                errlog.debug('Opened socket to %s:%d',
                              sa[0] if af == socket.AF_INET else ('[%s]' % sa[0]),
                              sa[1])
                 return sock
 
             except socket.error as _:
-                logger.exception("socket error")
+                errlog.exception("socket error")
                 err = _
                 if sock is not None:
                     sock.close()
@@ -2054,7 +2056,7 @@ class GoogleUrl(object):
         try:
             return 'www.' + self.TLD_TO_DOMAIN_MAP[self._tld]
         except KeyError:
-            logger.exception("key error")
+            errlog.exception("key error")
             return 'www.google.com'
 
     @property
@@ -2086,7 +2088,7 @@ class GoogleUrl(object):
 
 
 class GoogleConnectionError(Exception):
-    logger.exception("Google conenction error.")
+    errlog.exception("Google conenction error.")
     pass
 
 
@@ -2163,11 +2165,11 @@ class GoogleConnection(object):
         if proxy:
             proxy_user_passwd, proxy_host_port = parse_proxy_spec(proxy)
 
-            logger.debug('Connecting to proxy server %s', proxy_host_port)
+            errlog.debug('Connecting to proxy server %s', proxy_host_port)
             self._conn = HardenedHTTPSConnection(proxy_host_port,
                                                  address_family=self._address_family, timeout=timeout)
 
-            logger.debug('Tunnelling to host %s' % host_display)
+            errlog.debug('Tunnelling to host %s' % host_display)
             connect_headers = {}
             if proxy_user_passwd:
                 connect_headers['Proxy-Authorization'] = 'Basic %s' % base64.b64encode(
@@ -2179,17 +2181,17 @@ class GoogleConnection(object):
                 self._conn.connect(self._notweak)
             except Exception as e:
                 msg = 'Failed to connect to proxy server %s: %s.' % (proxy, e)
-                logger.exception(msg)
+                errlog.exception(msg)
                 raise GoogleConnectionError(msg)
         else:
-            logger.debug('Connecting to new host %s', host_display)
+            errlog.debug('Connecting to new host %s', host_display)
             self._conn = HardenedHTTPSConnection(host, port=port,
                                                  address_family=self._address_family, timeout=timeout)
             try:
                 self._conn.connect(self._notweak)
             except Exception as e:
                 msg = 'Failed to connect to %s: %s.' % (host_display, e)
-                logger.exception(msg)
+                errlog.exception(msg)
                 raise GoogleConnectionError(msg)
 
     def renew_connection(self, timeout=45):
@@ -2228,14 +2230,14 @@ class GoogleConnection(object):
         try:
             self._raw_get(url)
         except (http.client.HTTPException, OSError) as e:
-            logger.debug('Got exception: %s.', e)
-            logger.debug('Attempting to reconnect...')
+            errlog.debug('Got exception: %s.', e)
+            errlog.debug('Attempting to reconnect...')
             self.renew_connection()
             try:
                 self._raw_get(url)
             except http.client.HTTPException as e:
-                logger.debug('Got exception: %s.', e)
-                logger.exception('Got exception: %s.', e)
+                errlog.debug('Got exception: %s.', e)
+                errlog.exception('Got exception: %s.', e)
                 raise GoogleConnectionError("Failed to get '%s'." % url)
 
         resp = self._resp
@@ -2274,7 +2276,7 @@ class GoogleConnection(object):
             return gzip.decompress(payload).decode('utf-8')
         except OSError:
             # Not gzipped
-            logger.exception("OSError: not gzipped.")
+            errlog.exception("OSError: not gzipped.")
             return payload.decode('utf-8')
 
     def _redirect(self, url):
@@ -2294,7 +2296,7 @@ class GoogleConnection(object):
         GoogleConnectionError
 
         """
-        logger.debug('Redirecting to URL %s', url)
+        errlog.debug('Redirecting to URL %s', url)
         segments = urllib.parse.urlparse(url)
 
         host = segments.netloc
@@ -2305,8 +2307,8 @@ class GoogleConnection(object):
         try:
             self._raw_get(relurl)
         except http.client.HTTPException as e:
-            logger.exception('Got exception: %s.', e)
-            logger.debug('Got exception: %s.', e)
+            errlog.exception('Got exception: %s.', e)
+            errlog.debug('Got exception: %s.', e)
             raise GoogleConnectionError("Failed to get '%s'." % url)
 
     def _raw_get(self, url):
@@ -2325,7 +2327,7 @@ class GoogleConnection(object):
         http.client.HTTPException
 
         """
-        logger.debug('Fetching URL %s', url)
+        errlog.debug('Fetching URL %s', url)
         self._conn.request('GET', url, None, {
             'Accept': 'text/html',
             'Accept-Encoding': 'gzip',
@@ -2340,7 +2342,7 @@ class GoogleConnection(object):
             # Cookie won't be available if already blocked
             if complete_cookie is not None:
                 self.cookie = complete_cookie[:complete_cookie.find(';')]
-                logger.debug('Cookie: %s' % self.cookie)
+                errlog.debug('Cookie: %s' % self.cookie)
 
     def close(self):
         """Close the connection (if one is active)."""
@@ -2371,7 +2373,7 @@ class GoogleParser(object):
                 IPython.embed()
             except ImportError:
                 import pdb
-                logger.exception("Import error.")
+                errlog.exception("Import error.")
                 pdb.set_trace()
 
         # cw is short for collapse_whitespace.
@@ -2406,10 +2408,10 @@ class GoogleParser(object):
                     # survive the slighest further change), so we don't.
                     title_node, details_node, *_ = div_g.select_all('div.rc > div')
                     if 'yuRUbf' not in title_node.classes:
-                        logger.debug('unexpected title node class(es): expected %r, got %r',
+                        errlog.debug('unexpected title node class(es): expected %r, got %r',
                                      'yuRUbf', ' '.join(title_node.classes))
                     if 'IsZvec' not in details_node.classes:
-                        logger.debug('unexpected details node class(es): expected %r, got %r',
+                        errlog.debug('unexpected details node class(es): expected %r, got %r',
                                      'IsZvec', ' '.join(details_node.classes))
                     a = title_node.select('a')
                     h3 = a.select('h3')
@@ -2531,7 +2533,7 @@ class GoogleParser(object):
         try:
             url = urllib.parse.parse_qs(qs)['q'][0]
         except KeyError:
-            logger.exception("Key error.")
+            errlog.exception("Key error.")
             return link
         else:
             if "://" in url:
@@ -2769,7 +2771,7 @@ def no_argument(method):
         if arg:
             method_name = arg.__name__
             command_name = method_name[3:] if method_name.startswith('do_') else method_name
-            logger.warning("Argument to the '%s' command ignored.", command_name)
+            errlog.warning("Argument to the '%s' command ignored.", command_name)
         method(self)
 
     return enforced_method
@@ -2869,13 +2871,13 @@ class GooglerCmd(object):
                 page = fp.read()
         else:
             page = self._conn.fetch_page(self._google_url.relative())
-            if logger.isEnabledFor(logging.DEBUG):
+            if errlog.isEnabledFor(logging.DEBUG):
                 import tempfile
                 fd, tmpfile = tempfile.mkstemp(prefix='googler-response-', suffix='.html')
                 os.close(fd)
                 with open(tmpfile, 'w', encoding='utf-8') as fp:
                     fp.write(page)
-                logger.debug("Response body written to '%s'.", tmpfile)
+                errlog.debug("Response body written to '%s'.", tmpfile)
 
         parser = GoogleParser(page, news=self._google_url.news, videos=self._google_url.videos)
 
@@ -2897,18 +2899,18 @@ class GooglerCmd(object):
             import urllib.error
             import urllib.request
             info_json_url = '%s/master/info.json' % RAW_DOWNLOAD_REPO_BASE
-            logger.debug('Fetching %s for project status...', info_json_url)
+            errlog.debug('Fetching %s for project status...', info_json_url)
             try:
                 with urllib.request.urlopen(info_json_url, timeout=5) as response:
                     try:
                         info = json.load(response)
                     except Exception:
-                        logger.error('Failed to decode project status from %s', info_json_url)
-                        logger.exception('Failed to decode project status from %s', info_json_url)
+                        errlog.error('Failed to decode project status from %s', info_json_url)
+                        errlog.exception('Failed to decode project status from %s', info_json_url)
                         raise RuntimeError
             except urllib.error.HTTPError as e:
-                logger.error('Failed to fetch project status from %s: HTTP %d', info_json_url, e.code)
-                logger.exception('Failed to fetch project status from %s: HTTP %d', info_json_url, e.code)
+                errlog.error('Failed to fetch project status from %s: HTTP %d', info_json_url, e.code)
+                errlog.exception('Failed to fetch project status from %s: HTTP %d', info_json_url, e.code)
                 raise RuntimeError
             epoch = info.get('epoch')
             if epoch > _EPOCH_:
@@ -3063,7 +3065,7 @@ class GooglerCmd(object):
         try:
             self._google_url.first_page()
         except ValueError as e:
-            logger.exception()
+            errlog.exception()
             print(e, file=sys.stderr)
             return
 
@@ -3114,7 +3116,7 @@ class GooglerCmd(object):
                         else:
                             printerr('Invalid index %s.' % _id)
                 except ValueError:
-                    logger.exception('Invalid range %s.' % nav)
+                    errlog.exception('Invalid range %s.' % nav)
                     printerr('Invalid range %s.' % nav)
             else:
                 printerr('Invalid index %s.' % nav)
@@ -3125,7 +3127,7 @@ class GooglerCmd(object):
         try:
             self._google_url.prev_page()
         except ValueError as e:
-            logger.exception("Value error in do_previous")
+            errlog.exception("Value error in do_previous")
             print(e, file=sys.stderr)
             return
 
@@ -3151,7 +3153,7 @@ class GooglerCmd(object):
             try:
                 content = self._urltable[idx].encode('utf-8')
             except KeyError:
-                logger.exception("Invalid index")
+                errlog.exception("Invalid index")
                 printerr('Invalid index.')
                 return
 
@@ -3198,7 +3200,7 @@ class GooglerCmd(object):
 
             printerr('failed to locate suitable clipboard utility')
         except Exception:
-            logger.exception()
+            errlog.exception()
             raise NoKeywordsException
 
     def cmdloop(self):
@@ -3218,6 +3220,7 @@ class GooglerCmd(object):
             # `no_argument' decorator.
             try:
                 cmd = self.cmd
+                cmdlog.info(cmd)
                 if cmd == 'f':
                     self.do_first('')
                 elif cmd.startswith('g '):
@@ -3254,7 +3257,7 @@ class GooglerCmd(object):
                 else:
                     self.do_google(cmd)
             except NoKeywordsException:
-                logger.exception("Initiate a query first.")
+                errlog.exception("Initiate a query first.")
                 printerr('Initiate a query first.')
 
 
@@ -3317,7 +3320,7 @@ class GooglerArgumentParser(argparse.ArgumentParser):
             assert n > 0
             return n
         except (ValueError, AssertionError):
-            logger.exception('%s is not a positive integer' % arg)
+            errlog.exception('%s is not a positive integer' % arg)
             raise argparse.ArgumentTypeError('%s is not a positive integer' % arg)
 
     @staticmethod
@@ -3328,7 +3331,7 @@ class GooglerArgumentParser(argparse.ArgumentParser):
             assert n >= 0
             return n
         except (ValueError, AssertionError):
-            logger.exception('%s is not a non-negative integer' % arg)
+            errlog.exception('%s is not a non-negative integer' % arg)
             raise argparse.ArgumentTypeError('%s is not a non-negative integer' % arg)
 
     @staticmethod
@@ -3343,7 +3346,7 @@ class GooglerArgumentParser(argparse.ArgumentParser):
             if arg[0] not in ('h', 'd', 'w', 'm', 'y') or int(arg[1:]) < 0:
                 raise ValueError
         except (TypeError, IndexError, ValueError):
-            logger.exception('%s is not a valid duration' % arg)
+            errlog.exception('%s is not a valid duration' % arg)
             raise argparse.ArgumentTypeError('%s is not a valid duration' % arg)
         return arg
 
@@ -3364,7 +3367,7 @@ class GooglerArgumentParser(argparse.ArgumentParser):
             for c in arg:
                 assert c in COLORMAP
         except AssertionError:
-            logger.argparse('%s is not a valid color string' % arg)
+            errlog.argparse('%s is not a valid color string' % arg)
             raise argparse.ArgumentTypeError('%s is not a valid color string' % arg)
         return arg
 
@@ -3386,7 +3389,7 @@ def get_latest_ref(include_git=False):
                                          headers={'Accept': 'application/vnd.github.v3.sha'})
         response = urllib.request.urlopen(request)
         if response.status != 200:
-            logger.exception(response.reason)
+            errlog.exception(response.reason)
             raise http.client.HTTPException(response.reason)
         return response.read().decode('utf-8')
     else:
@@ -3395,7 +3398,7 @@ def get_latest_ref(include_git=False):
                                          headers={'Accept': 'application/vnd.github.v3+json'})
         response = urllib.request.urlopen(request)
         if response.status != 200:
-            logger.exception(response.reason)
+            errlog.exception(response.reason)
             raise http.client.HTTPException(response.reason)
         import json
         return json.loads(response.read().decode('utf-8'))[0]['tag_name']
@@ -3434,13 +3437,13 @@ def download_latest_googler(include_git=False):
     with open(path, 'wb') as fp:
         with urllib.request.urlopen(request) as response:
             if response.status != 200:
-                logger.exception(response.reason)
+                errlog.exception(response.reason)
                 raise http.client.HTTPException(response.reason)
             payload = response.read()
             try:
                 fp.write(gzip.decompress(payload))
             except OSError:
-                logger.exception(payload)
+                errlog.exception(payload)
                 fp.write(payload)
     return git_ref, path
 
@@ -3636,7 +3639,7 @@ def completer_fetch_completions(prefix):
     # A timeout of 3 seconds seems to be overly generous already.
     resp = urllib.request.urlopen(api_url, timeout=3)
     charset = resp.headers.get_content_charset()
-    logger.debug('Completions charset: %s', charset)
+    errlog.debug('Completions charset: %s', charset)
     respobj = json.loads(resp.read().decode(charset))
 
     # The response object, once parsed as JSON, should look like
@@ -3678,7 +3681,6 @@ def parse_args(args=None, namespace=None):
         Namespace with parsed arguments / options.
 
     """
-
     colorstr_env = os.getenv('GOOGLER_COLORS')
 
     argparser = GooglerArgumentParser(description='Google from the command-line.')
@@ -3771,14 +3773,14 @@ def parse_args(args=None, namespace=None):
 def main():
     try:
         opts = parse_args()
-
+        cmdlog.info(opts)
         # Set logging level
         if opts.debug:
             logging.basicConfig(format='[%(levelname)s] %(message)s')
-            logger.setLevel(logging.DEBUG)
-            logger.debug('googler version %s', _VERSION_)
-            logger.debug('Python version %s', python_version())
-            logger.debug('Platform: %s', platform.platform())
+            errlog.setLevel(logging.DEBUG)
+            errlog.debug('googler version %s', _VERSION_)
+            errlog.debug('Python version %s', python_version())
+            errlog.debug('Platform: %s', platform.platform())
             check_new_version()
 
         if opts.debugger:
@@ -3836,7 +3838,7 @@ def main():
                 open_url.suppress_browser_output = True
 
         if opts.noua:
-            logger.warning('--noua option has been deprecated and has no effect (see #284)')
+            errlog.warning('--noua option has been deprecated and has no effect (see #284)')
 
         repl = GooglerCmd(opts)
 
@@ -3858,10 +3860,10 @@ def main():
     except Exception as e:
         # With debugging on, let the exception through for a traceback;
         # otherwise, only print the exception error message.
-        if logger.isEnabledFor(logging.DEBUG):
+        if errlog.isEnabledFor(logging.DEBUG):
             raise
         else:
-            logger.error(e)
+            errlog.error(e)
             sys.exit(1)
 
 if __name__ == '__main__':
