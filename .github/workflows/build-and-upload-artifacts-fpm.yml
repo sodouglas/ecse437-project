@@ -27,7 +27,7 @@ jobs:
         run: |
           tag=${GITHUB_REF##*/}
           asset_options=()
-          for asset in dist/*; do
+          for asset in dist-fpm/*; do
             asset_options+=(-a "$asset")
           done
           hub release create --draft "${asset_options[@]}" --message "googler $tag" "$tag"

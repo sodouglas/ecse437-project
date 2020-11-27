@@ -27,7 +27,7 @@ version = sys.argv[1]
 print(version)
 
 # make temp dist dir
-os.system("mkdir dist")
+os.system("mkdir dist-fpm")
 
 # zip manual binaries
 os.system("gzip -9nc googler.1 > googler.1.gz")
@@ -64,8 +64,8 @@ for package in packages:
     os.system(fpm_command)
 
 # move every package to dist
-os.system("mv " + name + "-" + version + "* dist/")
-os.system("mv " + name + "_" + version + "* dist/")
+os.system("mv " + name + "-" + version + "* dist-fpm/")
+os.system("mv " + name + "_" + version + "* dist-fpm/")
 
 # remove zipped manual file
 os.system("rm googler.1.gz")
