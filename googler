@@ -3159,6 +3159,8 @@ class GooglerCmd(object):
             raise NoKeywordsException
 
     def report(self):
+        # link to view responses
+        # https://docs.google.com/forms/d/1FG4OHv4uIx1j8DpMnmEqKIvtPkKOudp4y75KQab3yOE/edit?usp=sharing
         import requests
         url = 'https://docs.google.com/forms/d/e/1FAIpQLSeCkt9Uq541J6_RQfZLySFa0U7Cmkf8XDApzNAKjNPmYz93hg/formResponse'
         
