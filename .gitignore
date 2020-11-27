@@ -1,4 +1,9 @@
 build/
 dist/
+dist-fpm/
 *.bak
 error.LOG
+htmlcov/
+.coverage
+*/__pycache__
+__pycache__/
