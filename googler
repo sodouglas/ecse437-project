@@ -3158,6 +3158,26 @@ class GooglerCmd(object):
         except Exception:
             raise NoKeywordsException
 
+    def report(self):
+        import requests
+        url = 'https://docs.google.com/forms/d/e/1FAIpQLSeCkt9Uq541J6_RQfZLySFa0U7Cmkf8XDApzNAKjNPmYz93hg/formResponse'
+        
+        colors = self.colors
+        message = 'please type your name:'
+        prompt = (colors.prompt + message + colors.reset + ' ') if (colors and self.promptcolor) else (message + ': ')
+        name = input(prompt)
+
+        try:
+            payload = {
+                'entry.735875969': name,
+                'submit': 'Submit'
+            }
+            response = requests.post(url, data=payload)
+
+        except NoKeywordsException:
+            printerr('Please enter valid username')
+
+
     def cmdloop(self):
         """Run REPL."""
         if self.keywords:
@@ -3208,6 +3228,8 @@ class GooglerCmd(object):
                     self.display_results()
                 elif cmd.startswith('c ') and self.re_url_index.match(cmd[2:]):
                     self.copy_url(cmd[2:])
+                elif cmd == 'bug':
+                    self.report()
                 else:
                     self.do_google(cmd)
             except NoKeywordsException:
