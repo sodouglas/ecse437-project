@@ -21,6 +21,15 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install pytest
-      - name: Test with pytest
+          pip install coverage
+          pip install pytest-cov
+          pip install coveralls
+      - name: Test with pytest and get coverage
+        env: 
+          COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
         run: |
-          pytest
+          pytest --cov=. tests
+          coverage report --fail-under=60
+          coveralls
+
+
