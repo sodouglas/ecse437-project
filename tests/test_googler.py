@@ -6,7 +6,7 @@ import subprocess
 import sys
 import pytest
 from importlib.util import spec_from_loader, module_from_spec
-from importlib.machinery import SourceFileLoader 
+from importlib.machinery import SourceFileLoader
 
 spec = spec_from_loader("googler", SourceFileLoader("googler", "./googler"))
 googler = module_from_spec(spec)
@@ -126,22 +126,27 @@ def test_from_to_options():
     # https://github.com/zmwangx/googler/runs/704110651?check_suite_focus=true
     gr.some_should(have_year_2019_in_metadata)
 
+
 def test_selector():
     selector1 = googler.Selector(tag="one", combinator=googler.Combinator.DESCENDANT)
-    selector2 = googler.Selector(tag="two", combinator=googler.Combinator.CHILD, previous = selector1)
-    assert str(selector2) == 'one > two'
+    selector2 = googler.Selector(
+        tag="two", combinator=googler.Combinator.CHILD, previous=selector1
+    )
+    assert str(selector2) == "one > two"
+
 
 def test_tracked_testwrap():
     textwrap = googler.TrackedTextwrap(text="asdasdasd", width=20)
     orig = textwrap.original
     origlines = textwrap.lines
-    textwrap.insert_zero_width_sequence(seq='\x1b[1m', offset=3)
+    textwrap.insert_zero_width_sequence(seq="\x1b[1m", offset=3)
     assert orig == textwrap.original
     assert origlines == textwrap.lines
 
+
 def test_attribute_selector():
     for selectortype in googler.AttributeSelectorType:
-        attSel = googler.AttributeSelector(attr="asdasd",val="test", type=selectortype)
+        attSel = googler.AttributeSelector(attr="asdasd", val="test", type=selectortype)
         if attSel.type == googler.AttributeSelectorType.BARE:
             fmt = "[{attr}{val:.0}]"
             assert fmt.format(attr=attSel.attr, val=repr(attSel.val)) == str(attSel)
@@ -163,6 +168,7 @@ def test_attribute_selector():
         elif attSel.type == googler.AttributeSelectorType.ASTERISK:
             fmt = "[{attr}*={val}]"
             assert fmt.format(attr=attSel.attr, val=repr(attSel.val)) == str(attSel)
+
 
 def test_cmd():
     parser = googler.parse_args([])
