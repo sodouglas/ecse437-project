@@ -1,4 +1,4 @@
-name: build and upload artifacts
+name: build and upload artifacts fpm
 on:
   push:
     tags:
