@@ -29,6 +29,7 @@ jobs:
           COVERALLS_REPO_TOKEN: InCVAbK1LwdqoUNicTvjLjbbETEFnlmSI
         run: |
           pytest --cov=. tests
+          coverage report --fail-under=65
           coveralls
 
 
