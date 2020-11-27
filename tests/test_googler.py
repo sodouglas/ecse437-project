@@ -171,6 +171,9 @@ def test_attribute_selector():
 
 
 def test_cmd():
-    parser = googler.parse_args([])
-    cmd = googler.GooglerCmd(parser)
-    cmd.warn_no_results()
+    try:
+        parser = googler.parse_args([])
+        cmd = googler.GooglerCmd(parser)
+        cmd.warn_no_results()
+    except:
+        pytest.fail("GooglerCmd failed with an exception...")
