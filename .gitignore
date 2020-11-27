@@ -1,3 +1,7 @@
 build/
 dist/
 *.bak
+htmlcov/
+.coverage
+*/__pycache__
+__pycache__/
