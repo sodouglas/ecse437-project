@@ -22,12 +22,13 @@ jobs:
           python -m pip install --upgrade pip
           pip install pytest
           pip install coverage
+          pip install pytest-cov
           pip install coveralls
       - name: Test with pytest and get coverage
+        env: 
+          COVERALLS_REPO_TOKEN: InCVAbK1LwdqoUNicTvjLjbbETEFnlmSI
         run: |
-          coverage run --source=googler -m pytest tests
-      - name: Upload coverage to coveralls.
-        uses: coverallsapp/github-action@master
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          pytest --cov=. tests
+          coveralls
+
 
