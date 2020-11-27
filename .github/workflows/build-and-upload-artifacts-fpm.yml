@@ -20,6 +20,9 @@ jobs:
       - name: Install rpm
         run: |
           sudo apt-get install rpm
+      - name: Install libarchive-tools
+        run: |
+          sudo apt install libarchive-tools
       - name: Build artifacts with fpm
         run: |
           version=${GITHUB_REF##*/v}
