@@ -1,0 +1,35 @@
+name: build and upload artifacts fpm
+on:
+  push:
+    tags:
+      - "v*"
+jobs:
+  build-and-upload-artifacts-fpm:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.x"
+      - name: Install fpm
+        run: |
+          sudo apt-get update
+          sudo apt-get install ruby-dev build-essential
+          sudo gem install fpm
+      - name: Install rpm
+          sudo apt-get install rpm
+      - name: Build artifacts with fpm
+        run: |
+          version=${GITHUB_REF##*/v}
+          ./build_fpm.py $version
+      - name: Create draft release with artifacts
+        run: |
+          tag=${GITHUB_REF##*/}
+          asset_options=()
+          for asset in dist-fpm/*; do
+            asset_options+=(-a "$asset")
+          done
+          hub release create --draft "${asset_options[@]}" --message "googler $tag" "$tag"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
