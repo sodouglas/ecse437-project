@@ -27,5 +27,6 @@ jobs:
         run: |
           coverage run --source=googler -m pytest tests
       - name: Upload coverage to coveralls.
-        run: |
-          coveralls
+        uses: coverallsapp/github-action@master
+        with: ${{ secrets.GITHUB_TOKEN }}
+
