@@ -3,9 +3,14 @@ import os
 import pathlib
 import re
 import subprocess
-
+import sys
 import pytest
+from importlib.util import spec_from_loader, module_from_spec
+from importlib.machinery import SourceFileLoader 
 
+spec = spec_from_loader("googler", SourceFileLoader("googler", "./googler"))
+googler = module_from_spec(spec)
+spec.loader.exec_module(googler)
 
 ROOT = pathlib.Path(__file__).parent.parent
 GOOGLER = ROOT / "googler"
@@ -120,3 +125,46 @@ def test_from_to_options():
     # sometimes some results just don't have that line for whatever reason:
     # https://github.com/zmwangx/googler/runs/704110651?check_suite_focus=true
     gr.some_should(have_year_2019_in_metadata)
+
+def test_selector():
+    selector1 = googler.Selector(tag="one", combinator=googler.Combinator.DESCENDANT)
+    selector2 = googler.Selector(tag="two", combinator=googler.Combinator.CHILD, previous = selector1)
+    assert str(selector2) == 'one > two'
+
+def test_tracked_testwrap():
+    textwrap = googler.TrackedTextwrap(text="asdasdasd", width=20)
+    orig = textwrap.original
+    origlines = textwrap.lines
+    textwrap.insert_zero_width_sequence(seq='\x1b[1m', offset=3)
+    assert orig == textwrap.original
+    assert origlines == textwrap.lines
+
+def test_attribute_selector():
+    for selectortype in googler.AttributeSelectorType:
+        attSel = googler.AttributeSelector(attr="asdasd",val="test", type=selectortype)
+        if attSel.type == googler.AttributeSelectorType.BARE:
+            fmt = "[{attr}{val:.0}]"
+            assert fmt.format(attr=attSel.attr, val=repr(attSel.val)) == str(attSel)
+        elif attSel.type == googler.AttributeSelectorType.EQUAL:
+            fmt = "[{attr}={val}]"
+            assert fmt.format(attr=attSel.attr, val=repr(attSel.val)) == str(attSel)
+        elif attSel.type == googler.AttributeSelectorType.TILDE:
+            fmt = "[{attr}~={val}]"
+            assert fmt.format(attr=attSel.attr, val=repr(attSel.val)) == str(attSel)
+        elif attSel.type == googler.AttributeSelectorType.PIPE:
+            fmt = "[{attr}|={val}]"
+            assert fmt.format(attr=attSel.attr, val=repr(attSel.val)) == str(attSel)
+        elif attSel.type == googler.AttributeSelectorType.CARET:
+            fmt = "[{attr}^={val}]"
+            assert fmt.format(attr=attSel.attr, val=repr(attSel.val)) == str(attSel)
+        elif attSel.type == googler.AttributeSelectorType.DOLLAR:
+            fmt = "[{attr}$={val}]"
+            assert fmt.format(attr=attSel.attr, val=repr(attSel.val)) == str(attSel)
+        elif attSel.type == googler.AttributeSelectorType.ASTERISK:
+            fmt = "[{attr}*={val}]"
+            assert fmt.format(attr=attSel.attr, val=repr(attSel.val)) == str(attSel)
+
+def test_cmd():
+    parser = googler.parse_args([])
+    cmd = googler.GooglerCmd(parser)
+    cmd.warn_no_results()
