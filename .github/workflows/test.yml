@@ -27,4 +27,5 @@ jobs:
         run: |
           coverage run --source=googler -m pytest tests
       - name: Upload coverage to coveralls.
+        run: |
           coveralls
