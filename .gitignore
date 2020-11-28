@@ -2,7 +2,7 @@ build/
 dist/
 dist-fpm/
 *.bak
-error.LOG
+*.log
 htmlcov/
 .coverage
 */__pycache__
