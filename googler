@@ -71,19 +71,23 @@ from typing import (
     Union,
     cast,
 )
+
+
 def setup_logger(logger_name, log_file, level=logging.INFO):
     l = logging.getLogger(logger_name)
-    formatter = logging.Formatter('%(asctime)s : %(message)s')
-    fileHandler = logging.FileHandler(log_file, mode='w')
+    formatter = logging.Formatter("%(asctime)s : %(message)s")
+    fileHandler = logging.FileHandler(log_file, mode="w")
     fileHandler.setFormatter(formatter)
 
     l.setLevel(level)
     l.addHandler(fileHandler)
 
-setup_logger('errlog', r'error.LOG')
-setup_logger('cmdlog', r'cmd.LOG')
-errlog = logging.getLogger('errlog')
-cmdlog = logging.getLogger('cmdlog')
+
+setup_logger("errlog", r"error.LOG")
+setup_logger("cmdlog", r"cmd.LOG")
+errlog = logging.getLogger("errlog")
+cmdlog = logging.getLogger("cmdlog")
+
 
 def sigint_handler(signum, frame):
     print("\nInterrupted.", file=sys.stderr)
@@ -262,9 +266,11 @@ class TrackedTextwrap:
             # be treated as a valid offset.
             self._coords.append((row, col))
         except AssertionError:
-            errlog.exception("TrackedTextwrap: the impossible happened at offset {} of text {!r}".format(
+            errlog.exception(
+                "TrackedTextwrap: the impossible happened at offset {} of text {!r}".format(
                     offset, self._original
-                ))
+                )
+            )
             raise RuntimeError(
                 "TrackedTextwrap: the impossible happened at offset {} of text {!r}".format(
                     offset, self._original
@@ -748,8 +754,10 @@ class DOMBuilder(HTMLParser):
             raise DOMBuilderException(self.getpos(), "extra end tag: %s" % repr(tag))
         parent = self._stack[-1]
         if parent.tag != tag:
-            errlog.exception(self.getpos(),
-                "expecting end tag %s, got %s" % (repr(parent.tag), repr(tag)))
+            errlog.exception(
+                self.getpos(),
+                "expecting end tag %s, got %s" % (repr(parent.tag), repr(tag)),
+            )
             raise DOMBuilderException(
                 self.getpos(),
                 "expecting end tag %s, got %s" % (repr(parent.tag), repr(tag)),
@@ -1206,7 +1214,8 @@ class Selector:
                     errlog.exception(
                         s,
                         i,
-                        "unrecognized operator %s in attribute selector" % repr(op))
+                        "unrecognized operator %s in attribute selector" % repr(op),
+                    )
                     raise SelectorParserException(
                         s,
                         i,
@@ -1515,7 +1524,7 @@ def open_url(url):
           option `show-browser-logs`
     """
 
-    errlog.debug('Opening %s', url)
+    errlog.debug("Opening %s", url)
 
     # Custom URL handler gets max priority
     if hasattr(open_url, "url_handler"):
@@ -1638,7 +1647,11 @@ def time_it(description=None):
             mark = time.perf_counter()
             ret = func(*args, **kwargs)
             duration = time.perf_counter() - mark
-            errlog.debug('%s completed in \x1b[33m%.3fs\x1b[0m', description or func.__name__, duration)
+            errlog.debug(
+                "%s completed in \x1b[33m%.3fs\x1b[0m",
+                description or func.__name__,
+                duration,
+            )
 
             return ret
 
@@ -1671,8 +1684,7 @@ class HardenedHTTPSConnection(HTTPSConnection):
                 sock.setsockopt(socket.SOL_SOCKET, socket.SO_RCVBUF, 524288)
             except OSError:
                 # Doesn't work on Windows' Linux subsystem (#179)
-                errlog.debug('setsockopt failed')
-
+                errlog.debug("setsockopt failed")
 
         if getattr(self, "_tunnel_host", None):
             self.sock = sock
@@ -1726,9 +1738,11 @@ class HardenedHTTPSConnection(HTTPSConnection):
                 # Break explicitly a reference cycle
                 err = None
                 self.address_family = af
-                errlog.debug('Opened socket to %s:%d',
-                             sa[0] if af == socket.AF_INET else ('[%s]' % sa[0]),
-                             sa[1])
+                errlog.debug(
+                    "Opened socket to %s:%d",
+                    sa[0] if af == socket.AF_INET else ("[%s]" % sa[0]),
+                    sa[1],
+                )
 
                 return sock
 
@@ -2245,8 +2259,7 @@ class GoogleUrl(object):
             return "www." + self.TLD_TO_DOMAIN_MAP[self._tld]
         except KeyError:
             errlog.exception("key error")
-            return 'www.google.com'
-
+            return "www.google.com"
 
     @property
     def query(self):
@@ -2356,11 +2369,12 @@ class GoogleConnection(object):
         if proxy:
             proxy_user_passwd, proxy_host_port = parse_proxy_spec(proxy)
 
-            errlog.debug('Connecting to proxy server %s', proxy_host_port)
-            self._conn = HardenedHTTPSConnection(proxy_host_port,
-                                                 address_family=self._address_family, timeout=timeout)
+            errlog.debug("Connecting to proxy server %s", proxy_host_port)
+            self._conn = HardenedHTTPSConnection(
+                proxy_host_port, address_family=self._address_family, timeout=timeout
+            )
 
-            errlog.debug('Tunnelling to host %s' % host_display)
+            errlog.debug("Tunnelling to host %s" % host_display)
 
             connect_headers = {}
             if proxy_user_passwd:
@@ -2372,17 +2386,18 @@ class GoogleConnection(object):
             try:
                 self._conn.connect(self._notweak)
             except Exception as e:
-                msg = 'Failed to connect to proxy server %s: %s.' % (proxy, e)
+                msg = "Failed to connect to proxy server %s: %s." % (proxy, e)
                 errlog.exception(msg)
                 raise GoogleConnectionError(msg)
         else:
-            errlog.debug('Connecting to new host %s', host_display)
-            self._conn = HardenedHTTPSConnection(host, port=port,
-                                                 address_family=self._address_family, timeout=timeout)
+            errlog.debug("Connecting to new host %s", host_display)
+            self._conn = HardenedHTTPSConnection(
+                host, port=port, address_family=self._address_family, timeout=timeout
+            )
             try:
                 self._conn.connect(self._notweak)
             except Exception as e:
-                msg = 'Failed to connect to %s: %s.' % (host_display, e)
+                msg = "Failed to connect to %s: %s." % (host_display, e)
                 errlog.exception(msg)
 
                 raise GoogleConnectionError(msg)
@@ -2423,15 +2438,15 @@ class GoogleConnection(object):
         try:
             self._raw_get(url)
         except (http.client.HTTPException, OSError) as e:
-            errlog.debug('Got exception: %s.', e)
-            errlog.debug('Attempting to reconnect...')
+            errlog.debug("Got exception: %s.", e)
+            errlog.debug("Attempting to reconnect...")
 
             self.renew_connection()
             try:
                 self._raw_get(url)
             except http.client.HTTPException as e:
-                errlog.debug('Got exception: %s.', e)
-                errlog.exception('Got exception: %s.', e)
+                errlog.debug("Got exception: %s.", e)
+                errlog.exception("Got exception: %s.", e)
 
                 raise GoogleConnectionError("Failed to get '%s'." % url)
 
@@ -2479,8 +2494,7 @@ class GoogleConnection(object):
         except OSError:
             # Not gzipped
             errlog.exception("OSError: not gzipped.")
-            return payload.decode('utf-8')
-
+            return payload.decode("utf-8")
 
     def _redirect(self, url):
         """Redirect to and fetch a new URL.
@@ -2499,7 +2513,7 @@ class GoogleConnection(object):
         GoogleConnectionError
 
         """
-        errlog.debug('Redirecting to URL %s', url)
+        errlog.debug("Redirecting to URL %s", url)
 
         segments = urllib.parse.urlparse(url)
 
@@ -2511,8 +2525,8 @@ class GoogleConnection(object):
         try:
             self._raw_get(relurl)
         except http.client.HTTPException as e:
-            errlog.exception('Got exception: %s.', e)
-            errlog.debug('Got exception: %s.', e)
+            errlog.exception("Got exception: %s.", e)
+            errlog.debug("Got exception: %s.", e)
 
             raise GoogleConnectionError("Failed to get '%s'." % url)
 
@@ -2532,23 +2546,28 @@ class GoogleConnection(object):
         http.client.HTTPException
 
         """
-        errlog.debug('Fetching URL %s', url)
-        self._conn.request('GET', url, None, {
-            'Accept': 'text/html',
-            'Accept-Encoding': 'gzip',
-            'User-Agent': USER_AGENT,
-            'Cookie': self.cookie,
-            'Connection': 'keep-alive',
-            'DNT': '1',
-        })
+        errlog.debug("Fetching URL %s", url)
+        self._conn.request(
+            "GET",
+            url,
+            None,
+            {
+                "Accept": "text/html",
+                "Accept-Encoding": "gzip",
+                "User-Agent": USER_AGENT,
+                "Cookie": self.cookie,
+                "Connection": "keep-alive",
+                "DNT": "1",
+            },
+        )
 
         self._resp = self._conn.getresponse()
         if self.cookie == "":
             complete_cookie = self._resp.getheader("Set-Cookie")
             # Cookie won't be available if already blocked
             if complete_cookie is not None:
-                self.cookie = complete_cookie[:complete_cookie.find(';')]
-                errlog.debug('Cookie: %s' % self.cookie)
+                self.cookie = complete_cookie[: complete_cookie.find(";")]
+                errlog.debug("Cookie: %s" % self.cookie)
 
     def close(self):
         """Close the connection (if one is active)."""
@@ -2581,6 +2600,7 @@ class GoogleParser(object):
                 IPython.embed()
             except ImportError:
                 import pdb
+
                 errlog.exception("Import error.")
 
                 pdb.set_trace()
@@ -2615,15 +2635,21 @@ class GoogleParser(object):
                     # Note that a filetype tag (e.g. PDF) is now pretty
                     # damn hard to parse with confidence (that it'll
                     # survive the slighest further change), so we don't.
-                    title_node, details_node, *_ = div_g.select_all('div.rc > div')
-                    if 'yuRUbf' not in title_node.classes:
-                        errlog.debug('unexpected title node class(es): expected %r, got %r',
-                                     'yuRUbf', ' '.join(title_node.classes))
-                    if 'IsZvec' not in details_node.classes:
-                        errlog.debug('unexpected details node class(es): expected %r, got %r',
-                                     'IsZvec', ' '.join(details_node.classes))
-                    a = title_node.select('a')
-                    h3 = a.select('h3')
+                    title_node, details_node, *_ = div_g.select_all("div.rc > div")
+                    if "yuRUbf" not in title_node.classes:
+                        errlog.debug(
+                            "unexpected title node class(es): expected %r, got %r",
+                            "yuRUbf",
+                            " ".join(title_node.classes),
+                        )
+                    if "IsZvec" not in details_node.classes:
+                        errlog.debug(
+                            "unexpected details node class(es): expected %r, got %r",
+                            "IsZvec",
+                            " ".join(details_node.classes),
+                        )
+                    a = title_node.select("a")
+                    h3 = a.select("h3")
 
                     title = h3.text
                     abstract_node = details_node.select("span")
@@ -3024,7 +3050,9 @@ def no_argument(method):
     def enforced_method(self, arg):
         if arg:
             method_name = arg.__name__
-            command_name = method_name[3:] if method_name.startswith('do_') else method_name
+            command_name = (
+                method_name[3:] if method_name.startswith("do_") else method_name
+            )
             errlog.warning("Argument to the '%s' command ignored.", command_name)
 
         method(self)
@@ -3160,20 +3188,33 @@ class GooglerCmd(object):
             import json
             import urllib.error
             import urllib.request
-            info_json_url = '%s/master/info.json' % RAW_DOWNLOAD_REPO_BASE
-            errlog.debug('Fetching %s for project status...', info_json_url)
+
+            info_json_url = "%s/master/info.json" % RAW_DOWNLOAD_REPO_BASE
+            errlog.debug("Fetching %s for project status...", info_json_url)
 
             try:
                 with urllib.request.urlopen(info_json_url, timeout=5) as response:
                     try:
                         info = json.load(response)
                     except Exception:
-                        errlog.error('Failed to decode project status from %s', info_json_url)
-                        errlog.exception('Failed to decode project status from %s', info_json_url)
+                        errlog.error(
+                            "Failed to decode project status from %s", info_json_url
+                        )
+                        errlog.exception(
+                            "Failed to decode project status from %s", info_json_url
+                        )
                         raise RuntimeError
             except urllib.error.HTTPError as e:
-                errlog.error('Failed to fetch project status from %s: HTTP %d', info_json_url, e.code)
-                errlog.exception('Failed to fetch project status from %s: HTTP %d', info_json_url, e.code)
+                errlog.error(
+                    "Failed to fetch project status from %s: HTTP %d",
+                    info_json_url,
+                    e.code,
+                )
+                errlog.exception(
+                    "Failed to fetch project status from %s: HTTP %d",
+                    info_json_url,
+                    e.code,
+                )
 
                 raise RuntimeError
             epoch = info.get("epoch")
@@ -3405,8 +3446,8 @@ class GooglerCmd(object):
                         else:
                             printerr("Invalid index %s." % _id)
                 except ValueError:
-                    errlog.exception('Invalid range %s.' % nav)
-                    printerr('Invalid range %s.' % nav)
+                    errlog.exception("Invalid range %s." % nav)
+                    printerr("Invalid range %s." % nav)
 
             else:
                 printerr("Invalid index %s." % nav)
@@ -3444,7 +3485,7 @@ class GooglerCmd(object):
                 content = self._urltable[idx].encode("utf-8")
             except KeyError:
                 errlog.exception("Invalid index")
-                printerr('Invalid index.')
+                printerr("Invalid index.")
 
                 return
 
@@ -3522,9 +3563,9 @@ class GooglerCmd(object):
             try:
                 cmd = self.cmd
                 cmdlog.info(cmd)
-                if cmd == 'f':
-                    self.do_first('')
-                elif cmd.startswith('g '):
+                if cmd == "f":
+                    self.do_first("")
+                elif cmd.startswith("g "):
                     self.do_google(cmd[2:])
                 elif cmd == "n":
                     self.do_next("")
@@ -3559,7 +3600,8 @@ class GooglerCmd(object):
                     self.do_google(cmd)
             except NoKeywordsException:
                 errlog.exception("Initiate a query first.")
-                printerr('Initiate a query first.')
+                printerr("Initiate a query first.")
+
 
 class GooglerArgumentParser(argparse.ArgumentParser):
     """Custom argument parser for googler."""
@@ -3629,9 +3671,8 @@ class GooglerArgumentParser(argparse.ArgumentParser):
             assert n > 0
             return n
         except (ValueError, AssertionError):
-            errlog.exception('%s is not a positive integer' % arg)
-            raise argparse.ArgumentTypeError('%s is not a positive integer' % arg)
-
+            errlog.exception("%s is not a positive integer" % arg)
+            raise argparse.ArgumentTypeError("%s is not a positive integer" % arg)
 
     @staticmethod
     def nonnegative_int(arg):
@@ -3641,9 +3682,8 @@ class GooglerArgumentParser(argparse.ArgumentParser):
             assert n >= 0
             return n
         except (ValueError, AssertionError):
-            errlog.exception('%s is not a non-negative integer' % arg)
-            raise argparse.ArgumentTypeError('%s is not a non-negative integer' % arg)
-
+            errlog.exception("%s is not a non-negative integer" % arg)
+            raise argparse.ArgumentTypeError("%s is not a non-negative integer" % arg)
 
     @staticmethod
     def is_duration(arg):
@@ -3657,8 +3697,8 @@ class GooglerArgumentParser(argparse.ArgumentParser):
             if arg[0] not in ("h", "d", "w", "m", "y") or int(arg[1:]) < 0:
                 raise ValueError
         except (TypeError, IndexError, ValueError):
-            errlog.exception('%s is not a valid duration' % arg)
-            raise argparse.ArgumentTypeError('%s is not a valid duration' % arg)
+            errlog.exception("%s is not a valid duration" % arg)
+            raise argparse.ArgumentTypeError("%s is not a valid duration" % arg)
 
         return arg
 
@@ -3681,8 +3721,8 @@ class GooglerArgumentParser(argparse.ArgumentParser):
             for c in arg:
                 assert c in COLORMAP
         except AssertionError:
-            errlog.argparse('%s is not a valid color string' % arg)
-            raise argparse.ArgumentTypeError('%s is not a valid color string' % arg)
+            errlog.argparse("%s is not a valid color string" % arg)
+            raise argparse.ArgumentTypeError("%s is not a valid color string" % arg)
 
         return arg
 
@@ -3970,7 +4010,7 @@ def completer_fetch_completions(prefix):
     # A timeout of 3 seconds seems to be overly generous already.
     resp = urllib.request.urlopen(api_url, timeout=3)
     charset = resp.headers.get_content_charset()
-    errlog.debug('Completions charset: %s', charset)
+    errlog.debug("Completions charset: %s", charset)
 
     respobj = json.loads(resp.read().decode(charset))
 
@@ -4014,8 +4054,7 @@ def parse_args(args=None, namespace=None):
 
     """
 
-    colorstr_env = os.getenv('GOOGLER_COLORS')
-
+    colorstr_env = os.getenv("GOOGLER_COLORS")
 
     argparser = GooglerArgumentParser(description="Google from the command-line.")
     addarg = argparser.add_argument
@@ -4211,11 +4250,11 @@ def main():
         cmdlog.info(opts)
         # Set logging level
         if opts.debug:
-            logging.basicConfig(format='[%(levelname)s] %(message)s')
+            logging.basicConfig(format="[%(levelname)s] %(message)s")
             errlog.setLevel(logging.DEBUG)
-            errlog.debug('googler version %s', _VERSION_)
-            errlog.debug('Python version %s', python_version())
-            errlog.debug('Platform: %s', platform.platform())
+            errlog.debug("googler version %s", _VERSION_)
+            errlog.debug("Python version %s", python_version())
+            errlog.debug("Platform: %s", platform.platform())
 
             check_new_version()
 
@@ -4274,8 +4313,9 @@ def main():
                 open_url.suppress_browser_output = True
 
         if opts.noua:
-            errlog.warning('--noua option has been deprecated and has no effect (see #284)')
-
+            errlog.warning(
+                "--noua option has been deprecated and has no effect (see #284)"
+            )
 
         repl = GooglerCmd(opts)
 
