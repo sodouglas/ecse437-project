@@ -16,7 +16,7 @@ PRESET_OPTIONS = os.getenv("GOOGLER_PRESET_OPTIONS", "").split()
 
 
 class GooglerResults:
-    def __init__(self, argv) :
+    def __init__(self, argv):
         self.argv = argv
         json_output = subprocess.check_output(
             [str(GOOGLER), *PRESET_OPTIONS, "--debug", "--json", *argv]
