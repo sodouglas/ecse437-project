@@ -15,5 +15,5 @@ jobs:
           pip install black
       - name: Style check with black
         run: |
+          black --check --quiet --diff googler
           black --check --quiet --diff tests/*.py
-	  black --check --quiet --diff googler
