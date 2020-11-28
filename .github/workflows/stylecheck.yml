@@ -16,3 +16,4 @@ jobs:
       - name: Style check with black
         run: |
           black --check --quiet --diff tests/*.py
+          black --check --quiet --diff googler
