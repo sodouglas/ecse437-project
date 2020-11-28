@@ -52,7 +52,8 @@ except ImportError:
 
 try:
     import setproctitle
-    setproctitle.setproctitle('googler')
+
+    setproctitle.setproctitle("googler")
 except (ImportError, Exception):
     pass
 
@@ -85,8 +86,9 @@ errlog = logging.getLogger('errlog')
 cmdlog = logging.getLogger('cmdlog')
 
 def sigint_handler(signum, frame):
-    print('\nInterrupted.', file=sys.stderr)
+    print("\nInterrupted.", file=sys.stderr)
     sys.exit(1)
+
 
 try:
     signal.signal(signal.SIGINT, sigint_handler)
@@ -97,24 +99,54 @@ except ValueError:
 
 # Constants
 
-_VERSION_ = '4.3.1'
-_EPOCH_ = '20201001'
+_VERSION_ = "4.3.1"
+_EPOCH_ = "20201001"
 
-COLORMAP = {k: '\x1b[%sm' % v for k, v in {
-    'a': '30', 'b': '31', 'c': '32', 'd': '33',
-    'e': '34', 'f': '35', 'g': '36', 'h': '37',
-    'i': '90', 'j': '91', 'k': '92', 'l': '93',
-    'm': '94', 'n': '95', 'o': '96', 'p': '97',
-    'A': '30;1', 'B': '31;1', 'C': '32;1', 'D': '33;1',
-    'E': '34;1', 'F': '35;1', 'G': '36;1', 'H': '37;1',
-    'I': '90;1', 'J': '91;1', 'K': '92;1', 'L': '93;1',
-    'M': '94;1', 'N': '95;1', 'O': '96;1', 'P': '97;1',
-    'x': '0', 'X': '1', 'y': '7', 'Y': '7;1',
-}.items()}
+COLORMAP = {
+    k: "\x1b[%sm" % v
+    for k, v in {
+        "a": "30",
+        "b": "31",
+        "c": "32",
+        "d": "33",
+        "e": "34",
+        "f": "35",
+        "g": "36",
+        "h": "37",
+        "i": "90",
+        "j": "91",
+        "k": "92",
+        "l": "93",
+        "m": "94",
+        "n": "95",
+        "o": "96",
+        "p": "97",
+        "A": "30;1",
+        "B": "31;1",
+        "C": "32;1",
+        "D": "33;1",
+        "E": "34;1",
+        "F": "35;1",
+        "G": "36;1",
+        "H": "37;1",
+        "I": "90;1",
+        "J": "91;1",
+        "K": "92;1",
+        "L": "93;1",
+        "M": "94;1",
+        "N": "95;1",
+        "O": "96;1",
+        "P": "97;1",
+        "x": "0",
+        "X": "1",
+        "y": "7",
+        "Y": "7;1",
+    }.items()
+}
 
-USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36'
+USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36"
 
-text_browsers = ['elinks', 'links', 'lynx', 'w3m', 'www-browser']
+text_browsers = ["elinks", "links", "lynx", "w3m", "www-browser"]
 
 # Self-upgrade parameters
 #
@@ -126,13 +158,14 @@ text_browsers = ['elinks', 'links', 'lynx', 'w3m', 'www-browser']
 # before running `make install'.
 
 ENABLE_SELF_UPGRADE_MECHANISM = True
-API_REPO_BASE = 'https://api.github.com/repos/jarun/googler'
-RAW_DOWNLOAD_REPO_BASE = 'https://raw.githubusercontent.com/jarun/googler'
+API_REPO_BASE = "https://api.github.com/repos/jarun/googler"
+RAW_DOWNLOAD_REPO_BASE = "https://raw.githubusercontent.com/jarun/googler"
 
 debugger = False
 
 
 # Monkeypatch textwrap for CJK wide characters.
+
 
 def monkeypatch_textwrap_for_cjk():
     try:
@@ -153,11 +186,11 @@ def monkeypatch_textwrap_for_cjk():
         #
         # East Asian Width: https://www.unicode.org/reports/tr11/
         return [
-            line.replace('\0', '')
+            line.replace("\0", "")
             for line in psl_textwrap_wrap(
-                ''.join(
-                    ch + '\0' if unicodedata.east_asian_width(ch) in ('F', 'W') else ch
-                    for ch in unicodedata.normalize('NFC', text)
+                "".join(
+                    ch + "\0" if unicodedata.east_asian_width(ch) in ("F", "W") else ch
+                    for ch in unicodedata.normalize("NFC", text)
                 ),
                 width=width - 1,
                 **kwargs
@@ -165,7 +198,7 @@ def monkeypatch_textwrap_for_cjk():
         ]
 
     def textwrap_fill(text, width=70, **kwargs):
-        return '\n'.join(textwrap_wrap(text, width=width, **kwargs))
+        return "\n".join(textwrap_wrap(text, width=width, **kwargs))
 
     textwrap.wrap = textwrap_wrap
     textwrap.fill = textwrap_fill
@@ -1461,6 +1494,7 @@ def _tag_encloses_foreign_namespace(tag: str) -> bool:
 
 # Global helper functions
 
+
 def open_url(url):
     """Open an URL in the user's default web browser.
 
@@ -1480,10 +1514,11 @@ def open_url(url):
     Note: If a GUI browser is indeed found, this option ignores the program
           option `show-browser-logs`
     """
+
     errlog.debug('Opening %s', url)
 
     # Custom URL handler gets max priority
-    if hasattr(open_url, 'url_handler'):
+    if hasattr(open_url, "url_handler"):
         subprocess.run([open_url.url_handler, url])
         return
 
@@ -1530,18 +1565,18 @@ def printerr(msg):
 
 def unwrap(text):
     """Unwrap text."""
-    lines = text.split('\n')
-    result = ''
+    lines = text.split("\n")
+    result = ""
     for i in range(len(lines) - 1):
         result += lines[i]
         if not lines[i]:
             # Paragraph break
-            result += '\n\n'
+            result += "\n\n"
         elif lines[i + 1]:
             # Next line is not paragraph break, add space
-            result += ' '
+            result += " "
     # Handle last line
-    result += lines[-1] if lines[-1] else '\n'
+    result += lines[-1] if lines[-1] else "\n"
     return result
 
 
@@ -1554,19 +1589,22 @@ def check_stdout_encoding():
     This function is a no-op on win32 because encoding on win32 is
     messy, and let's just hope for the best. /s
     """
-    if sys.platform == 'win32':
+    if sys.platform == "win32":
         return
 
     # Use codecs.lookup to resolve text encoding alias
     encoding = codecs.lookup(sys.stdout.encoding).name
-    if encoding != 'utf-8':
+    if encoding != "utf-8":
         locale_lang, locale_encoding = locale.getlocale()
         if locale_lang is None:
-            locale_lang = '<unknown>'
+            locale_lang = "<unknown>"
         if locale_encoding is None:
-            locale_encoding = '<unknown>'
-        ioencoding = os.getenv('PYTHONIOENCODING', 'not set')
-        sys.stderr.write(unwrap(textwrap.dedent("""\
+            locale_encoding = "<unknown>"
+        ioencoding = os.getenv("PYTHONIOENCODING", "not set")
+        sys.stderr.write(
+            unwrap(
+                textwrap.dedent(
+                    """\
         stdout encoding '{encoding}' detected. googler requires utf-8 to
         work properly. The wrong encoding may be due to a non-UTF-8
         locale or an improper PYTHONIOENCODING. (For the record, your
@@ -1576,11 +1614,14 @@ def check_stdout_encoding():
         Please set a UTF-8 locale (e.g., en_US.UTF-8) or set
         PYTHONIOENCODING to utf-8.
         """.format(
-            encoding=encoding,
-            locale_lang=locale_lang,
-            locale_encoding=locale_encoding,
-            ioencoding=ioencoding,
-        ))))
+                        encoding=encoding,
+                        locale_lang=locale_lang,
+                        locale_encoding=locale_encoding,
+                        ioencoding=ioencoding,
+                    )
+                )
+            )
+        )
         sys.exit(1)
 
 
@@ -1593,10 +1634,12 @@ def time_it(description=None):
                 return func(*args, **kwargs)
 
             import time
+
             mark = time.perf_counter()
             ret = func(*args, **kwargs)
             duration = time.perf_counter() - mark
             errlog.debug('%s completed in \x1b[33m%.3fs\x1b[0m', description or func.__name__, duration)
+
             return ret
 
         return wrapped
@@ -1605,6 +1648,7 @@ def time_it(description=None):
 
 
 # Classes
+
 
 class HardenedHTTPSConnection(HTTPSConnection):
     """Overrides HTTPSConnection.connect to specify TLS version
@@ -1620,7 +1664,7 @@ class HardenedHTTPSConnection(HTTPSConnection):
         sock = self.create_socket_connection()
 
         # Optimizations not available on OS X
-        if not notweak and sys.platform.startswith('linux'):
+        if not notweak and sys.platform.startswith("linux"):
             try:
                 sock.setsockopt(socket.SOL_TCP, socket.TCP_DEFER_ACCEPT, 1)
                 sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_QUICKACK, 1)
@@ -1629,21 +1673,26 @@ class HardenedHTTPSConnection(HTTPSConnection):
                 # Doesn't work on Windows' Linux subsystem (#179)
                 errlog.debug('setsockopt failed')
 
-        if getattr(self, '_tunnel_host', None):
+
+        if getattr(self, "_tunnel_host", None):
             self.sock = sock
         elif not notweak:
             # Try to use TLS 1.2
             ssl_context = None
-            if hasattr(ssl, 'PROTOCOL_TLS'):
+            if hasattr(ssl, "PROTOCOL_TLS"):
                 # Since Python 3.5.3
                 ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS)
                 if hasattr(ssl_context, "minimum_version"):
                     # Python 3.7 with OpenSSL 1.1.0g or later
                     ssl_context.minimum_version = ssl.TLSVersion.TLSv1_2
                 else:
-                    ssl_context.options |= (ssl.OP_NO_SSLv2 | ssl.OP_NO_SSLv3 |
-                                            ssl.OP_NO_TLSv1 | ssl.OP_NO_TLSv1_1)
-            elif hasattr(ssl, 'PROTOCOL_TLSv1_2'):
+                    ssl_context.options |= (
+                        ssl.OP_NO_SSLv2
+                        | ssl.OP_NO_SSLv3
+                        | ssl.OP_NO_TLSv1
+                        | ssl.OP_NO_TLSv1_1
+                    )
+            elif hasattr(ssl, "PROTOCOL_TLSv1_2"):
                 # Since Python 3.4
                 ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
             if ssl_context:
@@ -1657,10 +1706,14 @@ class HardenedHTTPSConnection(HTTPSConnection):
     # https://github.com/python/cpython/blob/bce4ddafdd188cc6deb1584728b67b9e149ca6a4/Lib/socket.py#L771-L813
     def create_socket_connection(self):
         err = None
-        results = socket.getaddrinfo(self.host, self.port, self.address_family, socket.SOCK_STREAM)
+        results = socket.getaddrinfo(
+            self.host, self.port, self.address_family, socket.SOCK_STREAM
+        )
         # Prefer IPv4 if address family isn't explicitly specified.
         if self.address_family == 0:
-            results = sorted(results, key=lambda res: 1 if res[0] == socket.AF_INET else 2)
+            results = sorted(
+                results, key=lambda res: 1 if res[0] == socket.AF_INET else 2
+            )
         for af, socktype, proto, canonname, sa in results:
             sock = None
             try:
@@ -1676,6 +1729,7 @@ class HardenedHTTPSConnection(HTTPSConnection):
                 errlog.debug('Opened socket to %s:%d',
                              sa[0] if af == socket.AF_INET else ('[%s]' % sa[0]),
                              sa[1])
+
                 return sock
 
             except socket.error as _:
@@ -1742,12 +1796,12 @@ class GoogleUrl(object):
     """
 
     def __init__(self, opts=None, **kwargs):
-        self.scheme = 'https'
+        self.scheme = "https"
         # self.netloc is a calculated property
-        self.path = '/search'
-        self.params = ''
+        self.path = "/search"
+        self.params = ""
         # self.query is a calculated property
-        self.fragment = ''
+        self.fragment = ""
 
         self._tld = None
         self._num = 10
@@ -1757,16 +1811,19 @@ class GoogleUrl(object):
         self._exclude = None
 
         self._query_dict = {
-            'ie': 'UTF-8',
-            'oe': 'UTF-8',
+            "ie": "UTF-8",
+            "oe": "UTF-8",
             #'gbv': '1',  # control the presence of javascript on the page, 1=no js, 2=js
-            'sei': base64.encodebytes(uuid.uuid4().bytes).decode("ascii").rstrip('=\n').replace('/', '_'),
+            "sei": base64.encodebytes(uuid.uuid4().bytes)
+            .decode("ascii")
+            .rstrip("=\n")
+            .replace("/", "_"),
         }
 
         # In preloaded HTML parsing mode, set keywords to something so
         # that we are not tripped up by require_keywords.
         if opts.html_file and not opts.keywords:
-            opts.keywords = ['<debug>']
+            opts.keywords = ["<debug>"]
 
         self.update(opts, **kwargs)
 
@@ -1799,12 +1856,12 @@ class GoogleUrl(object):
     @property
     def news(self):
         """Whether the URL is for Google News."""
-        return 'tbm' in self._query_dict and self._query_dict['tbm'] == 'nws'
+        return "tbm" in self._query_dict and self._query_dict["tbm"] == "nws"
 
     @property
     def videos(self):
         """Whether the URL is for Google Videos."""
-        return 'tbm' in self._query_dict and self._query_dict['tbm'] == 'vid'
+        return "tbm" in self._query_dict and self._query_dict["tbm"] == "vid"
 
     def full(self):
         """Return the full URL.
@@ -1814,8 +1871,8 @@ class GoogleUrl(object):
         str
 
         """
-        url = (self.scheme + ':') if self.scheme else ''
-        url += '//' + self.netloc + self.relative()
+        url = (self.scheme + ":") if self.scheme else ""
+        url += "//" + self.netloc + self.relative()
         return url
 
     def relative(self):
@@ -1833,11 +1890,11 @@ class GoogleUrl(object):
         """
         rel = self.path
         if self.params:
-            rel += ';' + self.params
+            rel += ";" + self.params
         if self.query:
-            rel += '?' + self.query
+            rel += "?" + self.query
         if self.fragment:
-            rel += '#' + self.fragment
+            rel += "#" + self.fragment
         return rel
 
     def update(self, opts=None, **kwargs):
@@ -1873,46 +1930,46 @@ class GoogleUrl(object):
 
         if opts is None:
             opts = {}
-        if hasattr(opts, '__dict__'):
+        if hasattr(opts, "__dict__"):
             opts = opts.__dict__
         opts.update(kwargs)
 
         qd = self._query_dict
-        if opts.get('duration'):
-            qd['tbs'] = 'qdr:%s' % opts['duration']
-        if 'exact' in opts:
-            if opts['exact']:
-                qd['nfpr'] = 1
+        if opts.get("duration"):
+            qd["tbs"] = "qdr:%s" % opts["duration"]
+        if "exact" in opts:
+            if opts["exact"]:
+                qd["nfpr"] = 1
             else:
-                qd.pop('nfpr', None)
-        if opts.get('from') or opts.get('to'):
-            cd_min = opts.get('from') or ''
-            cd_max = opts.get('to') or ''
-            qd['tbs'] = 'cdr:1,cd_min:%s,cd_max:%s' % (cd_min, cd_max)
-        if 'keywords' in opts:
-            self._keywords = opts['keywords']
-        if 'lang' in opts and opts['lang']:
-            qd['hl'] = opts['lang']
-        if 'geoloc' in opts and opts['geoloc']:
-            qd['gl'] = opts['geoloc']
-        if 'news' in opts and opts['news']:
-            qd['tbm'] = 'nws'
-        elif 'videos' in opts and opts['videos']:
-            qd['tbm'] = 'vid'
+                qd.pop("nfpr", None)
+        if opts.get("from") or opts.get("to"):
+            cd_min = opts.get("from") or ""
+            cd_max = opts.get("to") or ""
+            qd["tbs"] = "cdr:1,cd_min:%s,cd_max:%s" % (cd_min, cd_max)
+        if "keywords" in opts:
+            self._keywords = opts["keywords"]
+        if "lang" in opts and opts["lang"]:
+            qd["hl"] = opts["lang"]
+        if "geoloc" in opts and opts["geoloc"]:
+            qd["gl"] = opts["geoloc"]
+        if "news" in opts and opts["news"]:
+            qd["tbm"] = "nws"
+        elif "videos" in opts and opts["videos"]:
+            qd["tbm"] = "vid"
         else:
-            qd.pop('tbm', None)
-        if 'num' in opts:
-            self._num = opts['num']
-        if 'sites' in opts:
-            self._sites = opts['sites']
-        if 'exclude' in opts:
-            self._exclude = opts['exclude']
-        if 'start' in opts:
-            self._start = opts['start']
-        if 'tld' in opts:
-            self._tld = opts['tld']
-        if 'unfilter' in opts and opts['unfilter']:
-            qd['filter'] = 0
+            qd.pop("tbm", None)
+        if "num" in opts:
+            self._num = opts["num"]
+        if "sites" in opts:
+            self._sites = opts["sites"]
+        if "exclude" in opts:
+            self._exclude = opts["exclude"]
+        if "start" in opts:
+            self._start = opts["start"]
+        if "tld" in opts:
+            self._tld = opts["tld"]
+        if "unfilter" in opts and opts["unfilter"]:
+            qd["filter"] = 0
 
     def set_queries(self, **kwargs):
         """Forcefully set queries outside the normal `update` mechanism.
@@ -1962,7 +2019,7 @@ class GoogleUrl(object):
 
         """
         if self._start == 0:
-            raise ValueError('Already at the first page.')
+            raise ValueError("Already at the first page.")
         self._start = (self._start - self._num) if self._start > self._num else 0
 
     def first_page(self):
@@ -1976,88 +2033,220 @@ class GoogleUrl(object):
 
         """
         if self._start == 0:
-            raise ValueError('Already at the first page.')
+            raise ValueError("Already at the first page.")
         self._start = 0
 
     # Data source: https://web.archive.org/web/20170615200243/https://en.wikipedia.org/wiki/List_of_Google_domains
     # Scraper script: https://gist.github.com/zmwangx/b976e83c14552fe18b71
     TLD_TO_DOMAIN_MAP = {
-        'ac': 'google.ac',      'ad': 'google.ad',      'ae': 'google.ae',
-        'af': 'google.com.af',  'ag': 'google.com.ag',  'ai': 'google.com.ai',
-        'al': 'google.al',      'am': 'google.am',      'ao': 'google.co.ao',
-        'ar': 'google.com.ar',  'as': 'google.as',      'at': 'google.at',
-        'au': 'google.com.au',  'az': 'google.az',      'ba': 'google.ba',
-        'bd': 'google.com.bd',  'be': 'google.be',      'bf': 'google.bf',
-        'bg': 'google.bg',      'bh': 'google.com.bh',  'bi': 'google.bi',
-        'bj': 'google.bj',      'bn': 'google.com.bn',  'bo': 'google.com.bo',
-        'br': 'google.com.br',  'bs': 'google.bs',      'bt': 'google.bt',
-        'bw': 'google.co.bw',   'by': 'google.by',      'bz': 'google.com.bz',
-        'ca': 'google.ca',      'cat': 'google.cat',    'cc': 'google.cc',
-        'cd': 'google.cd',      'cf': 'google.cf',      'cg': 'google.cg',
-        'ch': 'google.ch',      'ci': 'google.ci',      'ck': 'google.co.ck',
-        'cl': 'google.cl',      'cm': 'google.cm',      'cn': 'google.cn',
-        'co': 'google.com.co',  'cr': 'google.co.cr',   'cu': 'google.com.cu',
-        'cv': 'google.cv',      'cy': 'google.com.cy',  'cz': 'google.cz',
-        'de': 'google.de',      'dj': 'google.dj',      'dk': 'google.dk',
-        'dm': 'google.dm',      'do': 'google.com.do',  'dz': 'google.dz',
-        'ec': 'google.com.ec',  'ee': 'google.ee',      'eg': 'google.com.eg',
-        'es': 'google.es',      'et': 'google.com.et',  'fi': 'google.fi',
-        'fj': 'google.com.fj',  'fm': 'google.fm',      'fr': 'google.fr',
-        'ga': 'google.ga',      'ge': 'google.ge',      'gf': 'google.gf',
-        'gg': 'google.gg',      'gh': 'google.com.gh',  'gi': 'google.com.gi',
-        'gl': 'google.gl',      'gm': 'google.gm',      'gp': 'google.gp',
-        'gr': 'google.gr',      'gt': 'google.com.gt',  'gy': 'google.gy',
-        'hk': 'google.com.hk',  'hn': 'google.hn',      'hr': 'google.hr',
-        'ht': 'google.ht',      'hu': 'google.hu',      'id': 'google.co.id',
-        'ie': 'google.ie',      'il': 'google.co.il',   'im': 'google.im',
-        'in': 'google.co.in',   'io': 'google.io',      'iq': 'google.iq',
-        'is': 'google.is',      'it': 'google.it',      'je': 'google.je',
-        'jm': 'google.com.jm',  'jo': 'google.jo',      'jp': 'google.co.jp',
-        'ke': 'google.co.ke',   'kg': 'google.kg',      'kh': 'google.com.kh',
-        'ki': 'google.ki',      'kr': 'google.co.kr',   'kw': 'google.com.kw',
-        'kz': 'google.kz',      'la': 'google.la',      'lb': 'google.com.lb',
-        'lc': 'google.com.lc',  'li': 'google.li',      'lk': 'google.lk',
-        'ls': 'google.co.ls',   'lt': 'google.lt',      'lu': 'google.lu',
-        'lv': 'google.lv',      'ly': 'google.com.ly',  'ma': 'google.co.ma',
-        'md': 'google.md',      'me': 'google.me',      'mg': 'google.mg',
-        'mk': 'google.mk',      'ml': 'google.ml',      'mm': 'google.com.mm',
-        'mn': 'google.mn',      'ms': 'google.ms',      'mt': 'google.com.mt',
-        'mu': 'google.mu',      'mv': 'google.mv',      'mw': 'google.mw',
-        'mx': 'google.com.mx',  'my': 'google.com.my',  'mz': 'google.co.mz',
-        'na': 'google.com.na',  'ne': 'google.ne',      'nf': 'google.com.nf',
-        'ng': 'google.com.ng',  'ni': 'google.com.ni',  'nl': 'google.nl',
-        'no': 'google.no',      'np': 'google.com.np',  'nr': 'google.nr',
-        'nu': 'google.nu',      'nz': 'google.co.nz',   'om': 'google.com.om',
-        'pa': 'google.com.pa',  'pe': 'google.com.pe',  'pg': 'google.com.pg',
-        'ph': 'google.com.ph',  'pk': 'google.com.pk',  'pl': 'google.pl',
-        'pn': 'google.co.pn',   'pr': 'google.com.pr',  'ps': 'google.ps',
-        'pt': 'google.pt',      'py': 'google.com.py',  'qa': 'google.com.qa',
-        'ro': 'google.ro',      'rs': 'google.rs',      'ru': 'google.ru',
-        'rw': 'google.rw',      'sa': 'google.com.sa',  'sb': 'google.com.sb',
-        'sc': 'google.sc',      'se': 'google.se',      'sg': 'google.com.sg',
-        'sh': 'google.sh',      'si': 'google.si',      'sk': 'google.sk',
-        'sl': 'google.com.sl',  'sm': 'google.sm',      'sn': 'google.sn',
-        'so': 'google.so',      'sr': 'google.sr',      'st': 'google.st',
-        'sv': 'google.com.sv',  'td': 'google.td',      'tg': 'google.tg',
-        'th': 'google.co.th',   'tj': 'google.com.tj',  'tk': 'google.tk',
-        'tl': 'google.tl',      'tm': 'google.tm',      'tn': 'google.tn',
-        'to': 'google.to',      'tr': 'google.com.tr',  'tt': 'google.tt',
-        'tw': 'google.com.tw',  'tz': 'google.co.tz',   'ua': 'google.com.ua',
-        'ug': 'google.co.ug',   'uk': 'google.co.uk',   'uy': 'google.com.uy',
-        'uz': 'google.co.uz',   'vc': 'google.com.vc',  've': 'google.co.ve',
-        'vg': 'google.vg',      'vi': 'google.co.vi',   'vn': 'google.com.vn',
-        'vu': 'google.vu',      'ws': 'google.ws',      'za': 'google.co.za',
-        'zm': 'google.co.zm',   'zw': 'google.co.zw',
+        "ac": "google.ac",
+        "ad": "google.ad",
+        "ae": "google.ae",
+        "af": "google.com.af",
+        "ag": "google.com.ag",
+        "ai": "google.com.ai",
+        "al": "google.al",
+        "am": "google.am",
+        "ao": "google.co.ao",
+        "ar": "google.com.ar",
+        "as": "google.as",
+        "at": "google.at",
+        "au": "google.com.au",
+        "az": "google.az",
+        "ba": "google.ba",
+        "bd": "google.com.bd",
+        "be": "google.be",
+        "bf": "google.bf",
+        "bg": "google.bg",
+        "bh": "google.com.bh",
+        "bi": "google.bi",
+        "bj": "google.bj",
+        "bn": "google.com.bn",
+        "bo": "google.com.bo",
+        "br": "google.com.br",
+        "bs": "google.bs",
+        "bt": "google.bt",
+        "bw": "google.co.bw",
+        "by": "google.by",
+        "bz": "google.com.bz",
+        "ca": "google.ca",
+        "cat": "google.cat",
+        "cc": "google.cc",
+        "cd": "google.cd",
+        "cf": "google.cf",
+        "cg": "google.cg",
+        "ch": "google.ch",
+        "ci": "google.ci",
+        "ck": "google.co.ck",
+        "cl": "google.cl",
+        "cm": "google.cm",
+        "cn": "google.cn",
+        "co": "google.com.co",
+        "cr": "google.co.cr",
+        "cu": "google.com.cu",
+        "cv": "google.cv",
+        "cy": "google.com.cy",
+        "cz": "google.cz",
+        "de": "google.de",
+        "dj": "google.dj",
+        "dk": "google.dk",
+        "dm": "google.dm",
+        "do": "google.com.do",
+        "dz": "google.dz",
+        "ec": "google.com.ec",
+        "ee": "google.ee",
+        "eg": "google.com.eg",
+        "es": "google.es",
+        "et": "google.com.et",
+        "fi": "google.fi",
+        "fj": "google.com.fj",
+        "fm": "google.fm",
+        "fr": "google.fr",
+        "ga": "google.ga",
+        "ge": "google.ge",
+        "gf": "google.gf",
+        "gg": "google.gg",
+        "gh": "google.com.gh",
+        "gi": "google.com.gi",
+        "gl": "google.gl",
+        "gm": "google.gm",
+        "gp": "google.gp",
+        "gr": "google.gr",
+        "gt": "google.com.gt",
+        "gy": "google.gy",
+        "hk": "google.com.hk",
+        "hn": "google.hn",
+        "hr": "google.hr",
+        "ht": "google.ht",
+        "hu": "google.hu",
+        "id": "google.co.id",
+        "ie": "google.ie",
+        "il": "google.co.il",
+        "im": "google.im",
+        "in": "google.co.in",
+        "io": "google.io",
+        "iq": "google.iq",
+        "is": "google.is",
+        "it": "google.it",
+        "je": "google.je",
+        "jm": "google.com.jm",
+        "jo": "google.jo",
+        "jp": "google.co.jp",
+        "ke": "google.co.ke",
+        "kg": "google.kg",
+        "kh": "google.com.kh",
+        "ki": "google.ki",
+        "kr": "google.co.kr",
+        "kw": "google.com.kw",
+        "kz": "google.kz",
+        "la": "google.la",
+        "lb": "google.com.lb",
+        "lc": "google.com.lc",
+        "li": "google.li",
+        "lk": "google.lk",
+        "ls": "google.co.ls",
+        "lt": "google.lt",
+        "lu": "google.lu",
+        "lv": "google.lv",
+        "ly": "google.com.ly",
+        "ma": "google.co.ma",
+        "md": "google.md",
+        "me": "google.me",
+        "mg": "google.mg",
+        "mk": "google.mk",
+        "ml": "google.ml",
+        "mm": "google.com.mm",
+        "mn": "google.mn",
+        "ms": "google.ms",
+        "mt": "google.com.mt",
+        "mu": "google.mu",
+        "mv": "google.mv",
+        "mw": "google.mw",
+        "mx": "google.com.mx",
+        "my": "google.com.my",
+        "mz": "google.co.mz",
+        "na": "google.com.na",
+        "ne": "google.ne",
+        "nf": "google.com.nf",
+        "ng": "google.com.ng",
+        "ni": "google.com.ni",
+        "nl": "google.nl",
+        "no": "google.no",
+        "np": "google.com.np",
+        "nr": "google.nr",
+        "nu": "google.nu",
+        "nz": "google.co.nz",
+        "om": "google.com.om",
+        "pa": "google.com.pa",
+        "pe": "google.com.pe",
+        "pg": "google.com.pg",
+        "ph": "google.com.ph",
+        "pk": "google.com.pk",
+        "pl": "google.pl",
+        "pn": "google.co.pn",
+        "pr": "google.com.pr",
+        "ps": "google.ps",
+        "pt": "google.pt",
+        "py": "google.com.py",
+        "qa": "google.com.qa",
+        "ro": "google.ro",
+        "rs": "google.rs",
+        "ru": "google.ru",
+        "rw": "google.rw",
+        "sa": "google.com.sa",
+        "sb": "google.com.sb",
+        "sc": "google.sc",
+        "se": "google.se",
+        "sg": "google.com.sg",
+        "sh": "google.sh",
+        "si": "google.si",
+        "sk": "google.sk",
+        "sl": "google.com.sl",
+        "sm": "google.sm",
+        "sn": "google.sn",
+        "so": "google.so",
+        "sr": "google.sr",
+        "st": "google.st",
+        "sv": "google.com.sv",
+        "td": "google.td",
+        "tg": "google.tg",
+        "th": "google.co.th",
+        "tj": "google.com.tj",
+        "tk": "google.tk",
+        "tl": "google.tl",
+        "tm": "google.tm",
+        "tn": "google.tn",
+        "to": "google.to",
+        "tr": "google.com.tr",
+        "tt": "google.tt",
+        "tw": "google.com.tw",
+        "tz": "google.co.tz",
+        "ua": "google.com.ua",
+        "ug": "google.co.ug",
+        "uk": "google.co.uk",
+        "uy": "google.com.uy",
+        "uz": "google.co.uz",
+        "vc": "google.com.vc",
+        "ve": "google.co.ve",
+        "vg": "google.vg",
+        "vi": "google.co.vi",
+        "vn": "google.com.vn",
+        "vu": "google.vu",
+        "ws": "google.ws",
+        "za": "google.co.za",
+        "zm": "google.co.zm",
+        "zw": "google.co.zw",
     }
 
     @property
     def netloc(self):
         """The hostname."""
         try:
-            return 'www.' + self.TLD_TO_DOMAIN_MAP[self._tld]
+            return "www." + self.TLD_TO_DOMAIN_MAP[self._tld]
         except KeyError:
             errlog.exception("key error")
             return 'www.google.com'
+
 
     @property
     def query(self):
@@ -2065,26 +2254,26 @@ class GoogleUrl(object):
         qd = {}
         qd.update(self._query_dict)
         if self._num != 10:  # Skip sending the default
-            qd['num'] = self._num
+            qd["num"] = self._num
         if self._start:  # Skip sending the default
-            qd['start'] = self._start
+            qd["start"] = self._start
 
         # Construct the q query
-        q = ''
+        q = ""
         keywords = self._keywords
         sites = self._sites
         exclude = self._exclude
         if keywords:
             if isinstance(keywords, list):
-                q += '+'.join(urllib.parse.quote_plus(kw) for kw in keywords)
+                q += "+".join(urllib.parse.quote_plus(kw) for kw in keywords)
             else:
                 q += urllib.parse.quote_plus(keywords)
         if sites:
-            q += '+OR'.join('+site:' + urllib.parse.quote_plus(site) for site in sites)
+            q += "+OR".join("+site:" + urllib.parse.quote_plus(site) for site in sites)
         if exclude:
-            q += ''.join('+-site:' + urllib.parse.quote_plus(e) for e in exclude)
-        qd['q'] = q
-        return '&'.join('%s=%s' % (k, qd[k]) for k in sorted(qd.keys()))
+            q += "".join("+-site:" + urllib.parse.quote_plus(e) for e in exclude)
+        qd["q"] = q
+        return "&".join("%s=%s" % (k, qd[k]) for k in sorted(qd.keys()))
 
 
 class GoogleConnectionError(Exception):
@@ -2120,7 +2309,9 @@ class GoogleConnection(object):
 
     """
 
-    def __init__(self, host, port=None, address_family=0, timeout=45, proxy=None, notweak=False):
+    def __init__(
+        self, host, port=None, address_family=0, timeout=45, proxy=None, notweak=False
+    ):
         self._host = None
         self._port = None
         self._address_family = address_family
@@ -2128,7 +2319,7 @@ class GoogleConnection(object):
         self._notweak = notweak
         self._conn = None
         self.new_connection(host, port=port, timeout=timeout)
-        self.cookie = ''
+        self.cookie = ""
 
     @property
     def host(self):
@@ -2158,7 +2349,7 @@ class GoogleConnection(object):
             port = self._port
         self._host = host
         self._port = port
-        host_display = host + (':%d' % port if port else '')
+        host_display = host + (":%d" % port if port else "")
 
         proxy = self._proxy
 
@@ -2170,11 +2361,12 @@ class GoogleConnection(object):
                                                  address_family=self._address_family, timeout=timeout)
 
             errlog.debug('Tunnelling to host %s' % host_display)
+
             connect_headers = {}
             if proxy_user_passwd:
-                connect_headers['Proxy-Authorization'] = 'Basic %s' % base64.b64encode(
-                    proxy_user_passwd.encode('utf-8')
-                ).decode('utf-8')
+                connect_headers["Proxy-Authorization"] = "Basic %s" % base64.b64encode(
+                    proxy_user_passwd.encode("utf-8")
+                ).decode("utf-8")
             self._conn.set_tunnel(host, port=port, headers=connect_headers)
 
             try:
@@ -2192,6 +2384,7 @@ class GoogleConnection(object):
             except Exception as e:
                 msg = 'Failed to connect to %s: %s.' % (host_display, e)
                 errlog.exception(msg)
+
                 raise GoogleConnectionError(msg)
 
     def renew_connection(self, timeout=45):
@@ -2232,34 +2425,43 @@ class GoogleConnection(object):
         except (http.client.HTTPException, OSError) as e:
             errlog.debug('Got exception: %s.', e)
             errlog.debug('Attempting to reconnect...')
+
             self.renew_connection()
             try:
                 self._raw_get(url)
             except http.client.HTTPException as e:
                 errlog.debug('Got exception: %s.', e)
                 errlog.exception('Got exception: %s.', e)
+
                 raise GoogleConnectionError("Failed to get '%s'." % url)
 
         resp = self._resp
         redirect_counter = 0
         while resp.status != 200 and redirect_counter < 3:
             if resp.status in {301, 302, 303, 307, 308}:
-                redirection_url = resp.getheader('location', '')
-                if 'sorry/IndexRedirect?' in redirection_url or 'sorry/index?' in redirection_url:
+                redirection_url = resp.getheader("location", "")
+                if (
+                    "sorry/IndexRedirect?" in redirection_url
+                    or "sorry/index?" in redirection_url
+                ):
                     msg = "Connection blocked due to unusual activity.\n"
                     if self._conn.address_family == socket.AF_INET6:
-                        msg += textwrap.dedent("""\
+                        msg += textwrap.dedent(
+                            """\
                         You are connecting over IPv6 which is likely the problem. Try to make
                         sure the machine has a working IPv4 network interface configured.
-                        See also the -4, --ipv4 option of googler.\n""")
-                    msg += textwrap.dedent("""\
+                        See also the -4, --ipv4 option of googler.\n"""
+                        )
+                    msg += textwrap.dedent(
+                        """\
                     THIS IS NOT A BUG, please do NOT report it as a bug unless you have specific
                     information that may lead to the development of a workaround.
                     You IP address is temporarily or permanently blocked by Google and requires
                     reCAPTCHA-solving to use the service, which googler is not capable of.
                     Possible causes include issuing too many queries in a short time frame, or
                     operating from a shared / low reputation IP with a history of abuse.
-                    Please do NOT use googler for automated scraping.""")
+                    Please do NOT use googler for automated scraping."""
+                    )
                     msg = " ".join(msg.splitlines())
                     raise GoogleConnectionError(msg)
                 self._redirect(redirection_url)
@@ -2269,15 +2471,16 @@ class GoogleConnection(object):
                 break
 
         if resp.status != 200:
-            raise GoogleConnectionError('Got HTTP %d: %s' % (resp.status, resp.reason))
+            raise GoogleConnectionError("Got HTTP %d: %s" % (resp.status, resp.reason))
 
         payload = resp.read()
         try:
-            return gzip.decompress(payload).decode('utf-8')
+            return gzip.decompress(payload).decode("utf-8")
         except OSError:
             # Not gzipped
             errlog.exception("OSError: not gzipped.")
             return payload.decode('utf-8')
+
 
     def _redirect(self, url):
         """Redirect to and fetch a new URL.
@@ -2297,18 +2500,20 @@ class GoogleConnection(object):
 
         """
         errlog.debug('Redirecting to URL %s', url)
+
         segments = urllib.parse.urlparse(url)
 
         host = segments.netloc
         if host != self._host:
             self.new_connection(host)
 
-        relurl = urllib.parse.urlunparse(('', '') + segments[2:])
+        relurl = urllib.parse.urlunparse(("", "") + segments[2:])
         try:
             self._raw_get(relurl)
         except http.client.HTTPException as e:
             errlog.exception('Got exception: %s.', e)
             errlog.debug('Got exception: %s.', e)
+
             raise GoogleConnectionError("Failed to get '%s'." % url)
 
     def _raw_get(self, url):
@@ -2336,9 +2541,10 @@ class GoogleConnection(object):
             'Connection': 'keep-alive',
             'DNT': '1',
         })
+
         self._resp = self._conn.getresponse()
-        if self.cookie == '':
-            complete_cookie = self._resp.getheader('Set-Cookie')
+        if self.cookie == "":
+            complete_cookie = self._resp.getheader("Set-Cookie")
             # Cookie won't be available if already blocked
             if complete_cookie is not None:
                 self.cookie = complete_cookie[:complete_cookie.find(';')]
@@ -2351,7 +2557,6 @@ class GoogleConnection(object):
 
 
 class GoogleParser(object):
-
     def __init__(self, html, *, news=False, videos=False):
         self.news = news
         self.videos = videos
@@ -2366,41 +2571,45 @@ class GoogleParser(object):
         tree = parse_html(html)
 
         if debugger:
-            printerr('\x1b[1mInspect the DOM through the \x1b[4mtree\x1b[24m variable.\x1b[0m')
-            printerr('')
+            printerr(
+                "\x1b[1mInspect the DOM through the \x1b[4mtree\x1b[24m variable.\x1b[0m"
+            )
+            printerr("")
             try:
                 import IPython
+
                 IPython.embed()
             except ImportError:
                 import pdb
                 errlog.exception("Import error.")
+
                 pdb.set_trace()
 
         # cw is short for collapse_whitespace.
-        cw = lambda s: re.sub(r'[ \t\n\r]+', ' ', s) if s is not None else s
+        cw = lambda s: re.sub(r"[ \t\n\r]+", " ", s) if s is not None else s
 
         index = 0
-        for div_g in tree.select_all('div.g'):
-            if div_g.select('.hp-xpdbox'):
+        for div_g in tree.select_all("div.g"):
+            if div_g.select(".hp-xpdbox"):
                 # Skip smart cards.
                 continue
             try:
-                if div_g.select('.st'):
+                if div_g.select(".st"):
                     # Old class structure, stopped working some time in
                     # September 2020, but kept just in case.
-                    h3 = div_g.select('div.r h3')
+                    h3 = div_g.select("div.r h3")
                     if h3:
                         title = h3.text
                         a = h3.parent
                     else:
-                        h3 = div_g.select('h3.r')
-                        a = h3.select('a')
+                        h3 = div_g.select("h3.r")
+                        a = h3.select("a")
                         title = a.text
-                        mime = div_g.select('.mime')
+                        mime = div_g.select(".mime")
                         if mime:
-                            title = mime.text + ' ' + title
-                    abstract_node = div_g.select('.st')
-                    metadata_node = div_g.select('.f')
+                            title = mime.text + " " + title
+                    abstract_node = div_g.select(".st")
+                    metadata_node = div_g.select(".f")
                 else:
                     # Current structure as of October 2020.
                     # Note that a filetype tag (e.g. PDF) is now pretty
@@ -2415,22 +2624,25 @@ class GoogleParser(object):
                                      'IsZvec', ' '.join(details_node.classes))
                     a = title_node.select('a')
                     h3 = a.select('h3')
+
                     title = h3.text
-                    abstract_node = details_node.select('span')
-                    metadata_node = details_node.select('.f, span ~ div')
-                url = self.unwrap_link(a.attr('href'))
+                    abstract_node = details_node.select("span")
+                    metadata_node = details_node.select(".f, span ~ div")
+                url = self.unwrap_link(a.attr("href"))
                 matched_keywords = []
-                abstract = ''
+                abstract = ""
                 # BFS descendant nodes. Necessary to locate matches (b,
                 # em) while skipping metadata (.f).
                 abstract_nodes = collections.deque([abstract_node])
                 while abstract_nodes:
                     node = abstract_nodes.popleft()
-                    if 'f' in node.classes:
+                    if "f" in node.classes:
                         # .f is handled as metadata instead.
                         continue
-                    if node.tag in ['b', 'em']:
-                        matched_keywords.append({'phrase': node.text, 'offset': len(abstract)})
+                    if node.tag in ["b", "em"]:
+                        matched_keywords.append(
+                            {"phrase": node.text, "offset": len(abstract)}
+                        )
                         abstract += node.text
                         continue
                     if not node.children:
@@ -2445,30 +2657,32 @@ class GoogleParser(object):
                     # "Producer(s)", "Genre", etc. for a song (sample
                     # query: "never gonna give you up"). These need to
                     # be delimited when displayed.
-                    metadata_fields = metadata_node.select_all('div > div.wFMWsc')
+                    metadata_fields = metadata_node.select_all("div > div.wFMWsc")
                     if metadata_fields:
-                        metadata = ' | '.join(field.text for field in metadata_fields)
-                    elif not metadata_node.select('a') and not metadata_node.select('g-expandable-container'):
+                        metadata = " | ".join(field.text for field in metadata_fields)
+                    elif not metadata_node.select("a") and not metadata_node.select(
+                        "g-expandable-container"
+                    ):
                         metadata = metadata_node.text
                     if metadata:
                         metadata = (
-                            metadata
-                            .replace('\u200e', '')
-                            .replace(' - ', ', ')
-                            .replace(' \u2014 ', ', ')
-                            .strip().rstrip(',')
+                            metadata.replace("\u200e", "")
+                            .replace(" - ", ", ")
+                            .replace(" \u2014 ", ", ")
+                            .strip()
+                            .rstrip(",")
                         )
                 except AttributeError:
                     pass
             except (AttributeError, ValueError):
                 continue
             sitelinks = []
-            for td in div_g.select_all('td'):
+            for td in div_g.select_all("td"):
                 try:
-                    a = td.select('a')
+                    a = td.select("a")
                     sl_title = a.text
-                    sl_url = self.unwrap_link(a.attr('href'))
-                    sl_abstract = td.select('div.s.st, div.s .st').text
+                    sl_url = self.unwrap_link(a.attr("href"))
+                    sl_abstract = td.select("div.s.st, div.s .st").text
                     sitelink = Sitelink(cw(sl_title), sl_url, cw(sl_abstract))
                     if sitelink not in sitelinks:
                         sitelinks.append(sitelink)
@@ -2478,18 +2692,25 @@ class GoogleParser(object):
             # up offsets of matches. Instead, each relevant node's text
             # is whitespace-collapsed before being appended to abstract.
             # We then hope for the best.
-            result = Result(index + 1, cw(title), url, abstract,
-                            metadata=cw(metadata), sitelinks=sitelinks, matches=matched_keywords)
+            result = Result(
+                index + 1,
+                cw(title),
+                url,
+                abstract,
+                metadata=cw(metadata),
+                sitelinks=sitelinks,
+                matches=matched_keywords,
+            )
             if result not in self.results:
                 self.results.append(result)
                 index += 1
 
         if not self.results:
-            for card in tree.select_all('g-card'):
-                a = card.select('a[href]')
+            for card in tree.select_all("g-card"):
+                a = card.select("a[href]")
                 if not a:
                     continue
-                url = self.unwrap_link(a.attr('href'))
+                url = self.unwrap_link(a.attr("href"))
                 text_nodes = []
                 for node in a.descendants():
                     if isinstance(node, TextNode) and node.strip():
@@ -2497,9 +2718,11 @@ class GoogleParser(object):
                 if len(text_nodes) != 4:
                     continue
                 publisher, title, abstract, publishing_time = text_nodes
-                metadata = '%s, %s' % (publisher, publishing_time)
+                metadata = "%s, %s" % (publisher, publishing_time)
                 index += 1
-                self.results.append(Result(index, cw(title), url, cw(abstract), metadata=cw(metadata)))
+                self.results.append(
+                    Result(index, cw(title), url, cw(abstract), metadata=cw(metadata))
+                )
 
         # Showing results for ...
         # Search instead for ...
@@ -2514,16 +2737,16 @@ class GoogleParser(object):
 
         # No results found for ...
         # Results for ...:
-        alt_query_infobox = tree.select('#topstuff')
+        alt_query_infobox = tree.select("#topstuff")
         if alt_query_infobox:
-            bolds = alt_query_infobox.select_all('div b')
+            bolds = alt_query_infobox.select_all("div b")
             if len(bolds) == 2:
                 self.showing_results_for = bolds[1].text
 
         # In order to show you the most relevant results, we have
         # omitted some entries very similar to the N already displayed.
         # ...
-        self.filtered = tree.select('p#ofr') is not None
+        self.filtered = tree.select("p#ofr") is not None
 
     # Unwraps /url?q=http://...&sa=...
     # TODO: don't unwrap if URL isn't in this form.
@@ -2531,7 +2754,7 @@ class GoogleParser(object):
     def unwrap_link(link):
         qs = urllib.parse.urlparse(link).query
         try:
-            url = urllib.parse.parse_qs(qs)['q'][0]
+            url = urllib.parse.parse_qs(qs)["q"][0]
         except KeyError:
             errlog.exception("Key error.")
             return link
@@ -2552,20 +2775,22 @@ class Sitelink(object):
         self.title = title
         self.url = url
         self.abstract = abstract
-        self.index = ''
+        self.index = ""
 
     def __eq__(self, other):
         return (
-            self.title == other.title and
-            self.url == other.url and
-            self.abstract == other.abstract
+            self.title == other.title
+            and self.url == other.url
+            and self.abstract == other.abstract
         )
 
     def __hash__(self):
         return hash((self.title, self.url, self.abstract))
 
 
-Colors = collections.namedtuple('Colors', 'index, title, url, metadata, abstract, prompt, reset')
+Colors = collections.namedtuple(
+    "Colors", "index, title, url, metadata, abstract, prompt, reset"
+)
 
 
 class Result(object):
@@ -2610,7 +2835,9 @@ class Result(object):
     colors = None
     urlexpand = True
 
-    def __init__(self, index, title, url, abstract, metadata=None, sitelinks=None, matches=None):
+    def __init__(
+        self, index, title, url, abstract, metadata=None, sitelinks=None, matches=None
+    ):
         index = str(index)
         self.index = index
         self.title = title
@@ -2621,7 +2848,7 @@ class Result(object):
         self.matches = [] if matches is None else matches
 
         self._urltable = {index: url}
-        subindex = 'a'
+        subindex = "a"
         for sitelink in self.sitelinks:
             fullindex = index + subindex
             sitelink.index = fullindex
@@ -2630,41 +2857,64 @@ class Result(object):
 
     def __eq__(self, other):
         return (
-            self.title == other.title and
-            self.url == other.url and
-            self.abstract == other.abstract and
-            self.metadata == other.metadata and
-            self.sitelinks == other.sitelinks and
-            self.matches == other.matches
+            self.title == other.title
+            and self.url == other.url
+            and self.abstract == other.abstract
+            and self.metadata == other.metadata
+            and self.sitelinks == other.sitelinks
+            and self.matches == other.matches
         )
 
     def __hash__(self):
-        sitelinks_hashable = tuple(self.sitelinks) if self.sitelinks is not None else None
+        sitelinks_hashable = (
+            tuple(self.sitelinks) if self.sitelinks is not None else None
+        )
         matches_hashable = tuple(self.matches) if self.matches is not None else None
-        return hash(self.title, self.url, self.abstract, self.metadata, sitelinks_hashable, matches_hashable)
+        return hash(
+            self.title,
+            self.url,
+            self.abstract,
+            self.metadata,
+            sitelinks_hashable,
+            matches_hashable,
+        )
 
     def _print_title_and_url(self, index, title, url, indent=0):
         colors = self.colors
 
         if not self.urlexpand:
-            url = '[' + urllib.parse.urlparse(url).netloc + ']'
+            url = "[" + urllib.parse.urlparse(url).netloc + "]"
 
         if colors:
             # Adjust index to print result index clearly
-            print(" %s%s%-3s%s" % (' ' * indent, colors.index, index + '.', colors.reset), end='')
+            print(
+                " %s%s%-3s%s" % (" " * indent, colors.index, index + ".", colors.reset),
+                end="",
+            )
             if not self.urlexpand:
-                print(' ' + colors.title + title + colors.reset + ' ' + colors.url + url + colors.reset)
+                print(
+                    " "
+                    + colors.title
+                    + title
+                    + colors.reset
+                    + " "
+                    + colors.url
+                    + url
+                    + colors.reset
+                )
             else:
-                print(' ' + colors.title + title + colors.reset)
-                print(' ' * (indent + 5) + colors.url + url + colors.reset)
+                print(" " + colors.title + title + colors.reset)
+                print(" " * (indent + 5) + colors.url + url + colors.reset)
         else:
             if self.urlexpand:
-                print(' %s%-3s %s' % (' ' * indent, index + '.', title))
-                print(' %s%s' % (' ' * (indent + 4), url))
+                print(" %s%-3s %s" % (" " * indent, index + ".", title))
+                print(" %s%s" % (" " * (indent + 4), url))
             else:
-                print(' %s%-3s %s %s' % (' ' * indent, index + '.', title, url))
+                print(" %s%-3s %s %s" % (" " * indent, index + ".", title, url))
 
-    def _print_metadata_and_abstract(self, abstract, metadata=None, matches=None, indent=0):
+    def _print_metadata_and_abstract(
+        self, abstract, metadata=None, matches=None, indent=0
+    ):
         colors = self.colors
         try:
             columns, _ = os.get_terminal_size()
@@ -2673,52 +2923,56 @@ class Result(object):
 
         if metadata:
             if colors:
-                print(' ' * (indent + 5) + colors.metadata + metadata + colors.reset)
+                print(" " * (indent + 5) + colors.metadata + metadata + colors.reset)
             else:
-                print(' ' * (indent + 5) + metadata)
+                print(" " * (indent + 5) + metadata)
 
         if abstract:
-            fillwidth = (columns - (indent + 6)) if columns > indent + 6 else len(abstract)
+            fillwidth = (
+                (columns - (indent + 6)) if columns > indent + 6 else len(abstract)
+            )
             wrapped_abstract = TrackedTextwrap(abstract, fillwidth)
             if colors:
                 # Highlight matches.
                 for match in matches or []:
-                    offset = match['offset']
-                    span = len(match['phrase'])
-                    wrapped_abstract.insert_zero_width_sequence('\x1b[1m', offset)
-                    wrapped_abstract.insert_zero_width_sequence('\x1b[0m', offset + span)
+                    offset = match["offset"]
+                    span = len(match["phrase"])
+                    wrapped_abstract.insert_zero_width_sequence("\x1b[1m", offset)
+                    wrapped_abstract.insert_zero_width_sequence(
+                        "\x1b[0m", offset + span
+                    )
 
             if colors:
-                print(colors.abstract, end='')
+                print(colors.abstract, end="")
             for line in wrapped_abstract.lines:
-                print('%s%s' % (' ' * (indent + 5), line))
+                print("%s%s" % (" " * (indent + 5), line))
             if colors:
-                print(colors.reset, end='')
+                print(colors.reset, end="")
 
-        print('')
+        print("")
 
     def print(self):
         """Print the result entry."""
         self._print_title_and_url(self.index, self.title, self.url)
-        self._print_metadata_and_abstract(self.abstract, metadata=self.metadata, matches=self.matches)
+        self._print_metadata_and_abstract(
+            self.abstract, metadata=self.metadata, matches=self.matches
+        )
 
         for sitelink in self.sitelinks:
-            self._print_title_and_url(sitelink.index, sitelink.title, sitelink.url, indent=4)
+            self._print_title_and_url(
+                sitelink.index, sitelink.title, sitelink.url, indent=4
+            )
             self._print_metadata_and_abstract(sitelink.abstract, indent=4)
 
     def jsonizable_object(self):
         """Return a JSON-serializable dict representing the result entry."""
-        obj = {
-            'title': self.title,
-            'url': self.url,
-            'abstract': self.abstract
-        }
+        obj = {"title": self.title, "url": self.url, "abstract": self.abstract}
         if self.metadata:
-            obj['metadata'] = self.metadata
+            obj["metadata"] = self.metadata
         if self.sitelinks:
-            obj['sitelinks'] = [sitelink.__dict__ for sitelink in self.sitelinks]
+            obj["sitelinks"] = [sitelink.__dict__ for sitelink in self.sitelinks]
         if self.matches:
-            obj['matches'] = self.matches
+            obj["matches"] = self.matches
         return obj
 
     def urltable(self):
@@ -2739,7 +2993,7 @@ class Result(object):
 
     @staticmethod
     def collapse_whitespace(s):
-        return re.sub(r'[ \t\n\r]+', ' ', s)
+        return re.sub(r"[ \t\n\r]+", " ", s)
 
 
 class GooglerCmdException(Exception):
@@ -2756,7 +3010,7 @@ def require_keywords(method):
     @functools.wraps(method)
     def enforced_method(self, *args, **kwargs):
         if not self.keywords:
-            raise NoKeywordsException('No keywords.')
+            raise NoKeywordsException("No keywords.")
         method(self, *args, **kwargs)
 
     return enforced_method
@@ -2772,6 +3026,7 @@ def no_argument(method):
             method_name = arg.__name__
             command_name = method_name[3:] if method_name.startswith('do_') else method_name
             errlog.warning("Argument to the '%s' command ignored.", command_name)
+
         method(self)
 
     return enforced_method
@@ -2822,11 +3077,13 @@ class GooglerCmd(object):
             self._conn = None
         else:
             self._preload_from_file = None
-            proxy = opts.proxy if hasattr(opts, 'proxy') else None
-            self._conn = GoogleConnection(self._google_url.hostname,
-                                        address_family=opts.address_family,
-                                        proxy=proxy,
-                                        notweak=opts.notweak)
+            proxy = opts.proxy if hasattr(opts, "proxy") else None
+            self._conn = GoogleConnection(
+                self._google_url.hostname,
+                address_family=opts.address_family,
+                proxy=proxy,
+                notweak=opts.notweak,
+            )
             atexit.register(self._conn.close)
 
         self.results = []
@@ -2835,7 +3092,7 @@ class GooglerCmd(object):
         self._results_filtered = False
         self._urltable = {}
 
-        self.promptcolor = True if os.getenv('DISABLE_PROMPT_COLOR') is None else False
+        self.promptcolor = True if os.getenv("DISABLE_PROMPT_COLOR") is None else False
 
         self.no_results_instructions_shown = False
 
@@ -2867,19 +3124,24 @@ class GooglerCmd(object):
         # This method also sets self._results_filtered and
         # self._urltable.
         if self._preload_from_file:
-            with open(self._preload_from_file, encoding='utf-8') as fp:
+            with open(self._preload_from_file, encoding="utf-8") as fp:
                 page = fp.read()
         else:
             page = self._conn.fetch_page(self._google_url.relative())
             if errlog.isEnabledFor(logging.DEBUG):
                 import tempfile
-                fd, tmpfile = tempfile.mkstemp(prefix='googler-response-', suffix='.html')
+
+                fd, tmpfile = tempfile.mkstemp(
+                    prefix="googler-response-", suffix=".html"
+                )
                 os.close(fd)
-                with open(tmpfile, 'w', encoding='utf-8') as fp:
+                with open(tmpfile, "w", encoding="utf-8") as fp:
                     fp.write(page)
                 errlog.debug("Response body written to '%s'.", tmpfile)
 
-        parser = GoogleParser(page, news=self._google_url.news, videos=self._google_url.videos)
+        parser = GoogleParser(
+            page, news=self._google_url.news, videos=self._google_url.videos
+        )
 
         self.results = parser.results
         self._autocorrected = parser.autocorrected
@@ -2890,7 +3152,7 @@ class GooglerCmd(object):
             self._urltable.update(r.urltable())
 
     def warn_no_results(self):
-        printerr('No results.')
+        printerr("No results.")
         if self.no_results_instructions_shown:
             return
 
@@ -2900,6 +3162,7 @@ class GooglerCmd(object):
             import urllib.request
             info_json_url = '%s/master/info.json' % RAW_DOWNLOAD_REPO_BASE
             errlog.debug('Fetching %s for project status...', info_json_url)
+
             try:
                 with urllib.request.urlopen(info_json_url, timeout=5) as response:
                     try:
@@ -2911,31 +3174,44 @@ class GooglerCmd(object):
             except urllib.error.HTTPError as e:
                 errlog.error('Failed to fetch project status from %s: HTTP %d', info_json_url, e.code)
                 errlog.exception('Failed to fetch project status from %s: HTTP %d', info_json_url, e.code)
+
                 raise RuntimeError
-            epoch = info.get('epoch')
+            epoch = info.get("epoch")
             if epoch > _EPOCH_:
-                printerr('Your version of googler is broken due to Google-side changes.')
-                tracking_issue = info.get('tracking_issue')
-                fixed_on_master = info.get('fixed_on_master')
-                fixed_in_release = info.get('fixed_in_release')
+                printerr(
+                    "Your version of googler is broken due to Google-side changes."
+                )
+                tracking_issue = info.get("tracking_issue")
+                fixed_on_master = info.get("fixed_on_master")
+                fixed_in_release = info.get("fixed_in_release")
                 if fixed_in_release:
-                    printerr('A new version, %s, has been released to address the changes.' % fixed_in_release)
-                    printerr('Please upgrade to the latest version.')
+                    printerr(
+                        "A new version, %s, has been released to address the changes."
+                        % fixed_in_release
+                    )
+                    printerr("Please upgrade to the latest version.")
                 elif fixed_on_master:
-                    printerr('The fix has been pushed to master, pending a release.')
-                    printerr('Please download the master version https://git.io/googler or wait for a release.')
+                    printerr("The fix has been pushed to master, pending a release.")
+                    printerr(
+                        "Please download the master version https://git.io/googler or wait for a release."
+                    )
                 else:
-                    printerr('The issue is tracked at https://github.com/jarun/googler/issues/%s.' % tracking_issue)
+                    printerr(
+                        "The issue is tracked at https://github.com/jarun/googler/issues/%s."
+                        % tracking_issue
+                    )
                 return
         except RuntimeError:
             pass
 
-        printerr('If you believe this is a bug, please review '
-                 'https://git.io/googler-no-results before submitting a bug report.')
+        printerr(
+            "If you believe this is a bug, please review "
+            "https://git.io/googler-no-results before submitting a bug report."
+        )
         self.no_results_instructions_shown = True
 
     @require_keywords
-    def display_results(self, prelude='\n', json_output=False):
+    def display_results(self, prelude="\n", json_output=False):
         """Display results stored in ``self.results``.
 
         Parameters
@@ -2946,8 +3222,11 @@ class GooglerCmd(object):
         if json_output:
             # JSON output
             import json
+
             results_object = [r.jsonizable_object() for r in self.results]
-            print(json.dumps(results_object, indent=2, sort_keys=True, ensure_ascii=False))
+            print(
+                json.dumps(results_object, indent=2, sort_keys=True, ensure_ascii=False)
+            )
         else:
             # Regular output
             if not self.results:
@@ -2963,25 +3242,31 @@ class GooglerCmd(object):
         if self._showing_results_for:
             if colors:
                 # Underline the query
-                actual_query = '\x1b[4m' + self._showing_results_for + '\x1b[24m'
+                actual_query = "\x1b[4m" + self._showing_results_for + "\x1b[24m"
             else:
                 actual_query = self._showing_results_for
             if self._autocorrected:
                 if interactive:
-                    info = 'Showing results for %s; enter "x" for an exact search.' % actual_query
+                    info = (
+                        'Showing results for %s; enter "x" for an exact search.'
+                        % actual_query
+                    )
                 else:
-                    info = 'Showing results for %s; use -x, --exact for an exact search.' % actual_query
+                    info = (
+                        "Showing results for %s; use -x, --exact for an exact search."
+                        % actual_query
+                    )
             else:
-                info = 'No results found; showing results for %s.' % actual_query
+                info = "No results found; showing results for %s." % actual_query
             if interactive:
-                printerr('')
+                printerr("")
             if colors:
                 printerr(colors.prompt + info + colors.reset)
             else:
-                printerr('** ' + info)
+                printerr("** " + info)
 
     @require_keywords
-    def fetch_and_display(self, prelude='\n', json_output=False, interactive=True):
+    def fetch_and_display(self, prelude="\n", json_output=False, interactive=True):
         """Fetch a page and display results.
 
         Results are stored in ``self.results``.
@@ -3016,8 +3301,8 @@ class GooglerCmd(object):
             if colors:
                 printerr(colors.prompt + info + colors.reset)
             else:
-                printerr('** ' + info)
-            printerr('')
+                printerr("** " + info)
+            printerr("")
 
     def read_next_command(self):
         """Show omniprompt and read user command line.
@@ -3032,8 +3317,12 @@ class GooglerCmd(object):
 
         """
         colors = self.colors
-        message = 'googler (? for help)'
-        prompt = (colors.prompt + message + colors.reset + ' ') if (colors and self.promptcolor) else (message + ': ')
+        message = "googler (? for help)"
+        prompt = (
+            (colors.prompt + message + colors.reset + " ")
+            if (colors and self.promptcolor)
+            else (message + ": ")
+        )
         enter_count = 0
         while True:
             try:
@@ -3049,7 +3338,7 @@ class GooglerCmd(object):
             else:
                 enter_count = 0
 
-            cmd = ' '.join(cmd.split())
+            cmd = " ".join(cmd.split())
             if cmd:
                 self.cmd = cmd
                 break
@@ -3057,7 +3346,7 @@ class GooglerCmd(object):
     @staticmethod
     def help():
         GooglerArgumentParser.print_omniprompt_help(sys.stderr)
-        printerr('')
+        printerr("")
 
     @require_keywords
     @no_argument
@@ -3083,7 +3372,7 @@ class GooglerCmd(object):
         # If > 5 results are being fetched each time,
         # block next when no parsed results in current fetch
         if not self.results and self._google_url._num > 5:
-            printerr('No results.')
+            printerr("No results.")
         else:
             self._google_url.next_page()
             self.fetch_and_display()
@@ -3095,16 +3384,16 @@ class GooglerCmd(object):
             return
 
         for nav in args:
-            if nav == 'a':
+            if nav == "a":
                 for key, value in sorted(self._urltable.items()):
                     open_url(self._urltable[key])
             elif nav in self._urltable:
                 open_url(self._urltable[nav])
-            elif '-' in nav:
+            elif "-" in nav:
                 try:
-                    vals = [int(x) for x in nav.split('-')]
-                    if (len(vals) != 2):
-                        printerr('Invalid range %s.' % nav)
+                    vals = [int(x) for x in nav.split("-")]
+                    if len(vals) != 2:
+                        printerr("Invalid range %s." % nav)
                         continue
 
                     if vals[0] > vals[1]:
@@ -3114,12 +3403,13 @@ class GooglerCmd(object):
                         if str(_id) in self._urltable:
                             open_url(self._urltable[str(_id)])
                         else:
-                            printerr('Invalid index %s.' % _id)
+                            printerr("Invalid index %s." % _id)
                 except ValueError:
                     errlog.exception('Invalid range %s.' % nav)
                     printerr('Invalid range %s.' % nav)
+
             else:
-                printerr('Invalid index %s.' % nav)
+                printerr("Invalid index %s." % nav)
 
     @require_keywords
     @no_argument
@@ -3151,54 +3441,65 @@ class GooglerCmd(object):
     def copy_url(self, idx):
         try:
             try:
-                content = self._urltable[idx].encode('utf-8')
+                content = self._urltable[idx].encode("utf-8")
             except KeyError:
                 errlog.exception("Invalid index")
                 printerr('Invalid index.')
+
                 return
 
             # try copying the url to clipboard using native utilities
             copier_params = []
-            if sys.platform.startswith(('linux', 'freebsd', 'openbsd')):
-                if shutil.which('xsel') is not None:
-                    copier_params = ['xsel', '-b', '-i']
-                elif shutil.which('xclip') is not None:
-                    copier_params = ['xclip', '-selection', 'clipboard']
-                elif shutil.which('wl-copy') is not None:
-                    copier_params = ['wl-copy']
-                elif shutil.which('termux-clipboard-set') is not None:
-                    copier_params = ['termux-clipboard-set']
-            elif sys.platform == 'darwin':
-                copier_params = ['pbcopy']
-            elif sys.platform == 'win32':
-                copier_params = ['clip']
+            if sys.platform.startswith(("linux", "freebsd", "openbsd")):
+                if shutil.which("xsel") is not None:
+                    copier_params = ["xsel", "-b", "-i"]
+                elif shutil.which("xclip") is not None:
+                    copier_params = ["xclip", "-selection", "clipboard"]
+                elif shutil.which("wl-copy") is not None:
+                    copier_params = ["wl-copy"]
+                elif shutil.which("termux-clipboard-set") is not None:
+                    copier_params = ["termux-clipboard-set"]
+            elif sys.platform == "darwin":
+                copier_params = ["pbcopy"]
+            elif sys.platform == "win32":
+                copier_params = ["clip"]
 
             if copier_params:
-                Popen(copier_params, stdin=PIPE, stdout=DEVNULL, stderr=DEVNULL).communicate(content)
+                Popen(
+                    copier_params, stdin=PIPE, stdout=DEVNULL, stderr=DEVNULL
+                ).communicate(content)
                 return
 
             # If native clipboard utilities are absent, try to use terminal multiplexers
             # tmux
-            if os.getenv('TMUX_PANE'):
-                copier_params = ['tmux', 'set-buffer']
-                Popen(copier_params + [content], stdin=DEVNULL, stdout=DEVNULL, stderr=DEVNULL).communicate()
+            if os.getenv("TMUX_PANE"):
+                copier_params = ["tmux", "set-buffer"]
+                Popen(
+                    copier_params + [content],
+                    stdin=DEVNULL,
+                    stdout=DEVNULL,
+                    stderr=DEVNULL,
+                ).communicate()
                 return
 
             # GNU Screen paste buffer
-            if os.getenv('STY'):
+            if os.getenv("STY"):
                 import tempfile
-                copier_params = ['screen', '-X', 'readbuf', '-e', 'utf8']
+
+                copier_params = ["screen", "-X", "readbuf", "-e", "utf8"]
                 tmpfd, tmppath = tempfile.mkstemp()
                 try:
-                    with os.fdopen(tmpfd, 'wb') as fp:
+                    with os.fdopen(tmpfd, "wb") as fp:
                         fp.write(content)
                     copier_params.append(tmppath)
-                    Popen(copier_params, stdin=DEVNULL, stdout=DEVNULL, stderr=DEVNULL).communicate()
+                    Popen(
+                        copier_params, stdin=DEVNULL, stdout=DEVNULL, stderr=DEVNULL
+                    ).communicate()
                 finally:
                     os.unlink(tmppath)
                 return
 
-            printerr('failed to locate suitable clipboard utility')
+            printerr("failed to locate suitable clipboard utility")
         except Exception:
             errlog.exception()
             raise NoKeywordsException
@@ -3208,7 +3509,7 @@ class GooglerCmd(object):
         if self.keywords:
             self.fetch_and_display()
         else:
-            printerr('Please initiate a query.')
+            printerr("Please initiate a query.")
 
         while True:
             self.read_next_command()
@@ -3225,41 +3526,40 @@ class GooglerCmd(object):
                     self.do_first('')
                 elif cmd.startswith('g '):
                     self.do_google(cmd[2:])
-                elif cmd == 'n':
-                    self.do_next('')
-                elif cmd == 'o':
+                elif cmd == "n":
+                    self.do_next("")
+                elif cmd == "o":
                     self.do_open()
-                elif cmd.startswith('o '):
+                elif cmd.startswith("o "):
                     self.do_open(*cmd[2:].split())
-                elif cmd.startswith('O '):
+                elif cmd.startswith("O "):
                     open_url.override_text_browser = True
                     self.do_open(*cmd[2:].split())
                     open_url.override_text_browser = False
-                elif cmd == 'p':
-                    self.do_previous('')
-                elif cmd == 'q':
+                elif cmd == "p":
+                    self.do_previous("")
+                elif cmd == "q":
                     break
-                elif cmd == 'x':
-                    self.do_exact('')
-                elif cmd == 'unfilter':
-                    self.do_unfilter('')
-                elif cmd == '?':
+                elif cmd == "x":
+                    self.do_exact("")
+                elif cmd == "unfilter":
+                    self.do_unfilter("")
+                elif cmd == "?":
                     self.help()
                 elif cmd in self._urltable:
                     open_url(self._urltable[cmd])
                 elif self.keywords and cmd.isdigit() and int(cmd) < 100:
-                    printerr('Index out of bound. To search for the number, use g.')
-                elif cmd == 'u':
+                    printerr("Index out of bound. To search for the number, use g.")
+                elif cmd == "u":
                     Result.urlexpand = not Result.urlexpand
                     self.display_results()
-                elif cmd.startswith('c ') and self.re_url_index.match(cmd[2:]):
+                elif cmd.startswith("c ") and self.re_url_index.match(cmd[2:]):
                     self.copy_url(cmd[2:])
                 else:
                     self.do_google(cmd)
             except NoKeywordsException:
                 errlog.exception("Initiate a query first.")
                 printerr('Initiate a query first.')
-
 
 class GooglerArgumentParser(argparse.ArgumentParser):
     """Custom argument parser for googler."""
@@ -3268,7 +3568,9 @@ class GooglerArgumentParser(argparse.ArgumentParser):
     @staticmethod
     def print_omniprompt_help(file=None):
         file = sys.stderr if file is None else file
-        file.write(textwrap.dedent("""
+        file.write(
+            textwrap.dedent(
+                """
         omniprompt keys:
           n, p                  fetch the next or previous set of search results
           index                 open the result corresponding to index in browser
@@ -3284,20 +3586,27 @@ class GooglerArgumentParser(argparse.ArgumentParser):
           q, ^D, double Enter   exit googler
           ?                     show omniprompt help
           *                     other inputs issue a new search with original options
-        """))
+        """
+            )
+        )
 
     # Print information on googler
     @staticmethod
     def print_general_info(file=None):
         file = sys.stderr if file is None else file
-        file.write(textwrap.dedent("""
+        file.write(
+            textwrap.dedent(
+                """
         Version %s
         Copyright © 2008 Henri Hakkinen
         Copyright © 2015-2020 Arun Prakash Jana <engineerarun@gmail.com>
         Zhiming Wang <zmwangx@gmail.com>
         License: GPLv3
         Webpage: https://github.com/jarun/googler
-        """ % _VERSION_))
+        """
+                % _VERSION_
+            )
+        )
 
     # Augment print_help to print more than synopsis and options
     def print_help(self, file=None):
@@ -3307,7 +3616,7 @@ class GooglerArgumentParser(argparse.ArgumentParser):
 
     # Automatically print full help text on error
     def error(self, message):
-        sys.stderr.write('%s: error: %s\n\n' % (self.prog, message))
+        sys.stderr.write("%s: error: %s\n\n" % (self.prog, message))
         self.print_help(sys.stderr)
         self.exit(2)
 
@@ -3323,6 +3632,7 @@ class GooglerArgumentParser(argparse.ArgumentParser):
             errlog.exception('%s is not a positive integer' % arg)
             raise argparse.ArgumentTypeError('%s is not a positive integer' % arg)
 
+
     @staticmethod
     def nonnegative_int(arg):
         """Try to convert a string into a nonnegative integer."""
@@ -3334,6 +3644,7 @@ class GooglerArgumentParser(argparse.ArgumentParser):
             errlog.exception('%s is not a non-negative integer' % arg)
             raise argparse.ArgumentTypeError('%s is not a non-negative integer' % arg)
 
+
     @staticmethod
     def is_duration(arg):
         """Check if a string is a valid duration accepted by Google.
@@ -3343,21 +3654,24 @@ class GooglerArgumentParser(argparse.ArgumentParser):
         non-negative integer.
         """
         try:
-            if arg[0] not in ('h', 'd', 'w', 'm', 'y') or int(arg[1:]) < 0:
+            if arg[0] not in ("h", "d", "w", "m", "y") or int(arg[1:]) < 0:
                 raise ValueError
         except (TypeError, IndexError, ValueError):
             errlog.exception('%s is not a valid duration' % arg)
             raise argparse.ArgumentTypeError('%s is not a valid duration' % arg)
+
         return arg
 
     @staticmethod
     def is_date(arg):
         """Check if a string is a valid date/month/year accepted by Google."""
-        if re.match(r'^(\d+/){0,2}\d+$', arg):
+        if re.match(r"^(\d+/){0,2}\d+$", arg):
             return arg
         else:
-            raise argparse.ArgumentTypeError('%s is not a valid date/month/year; '
-                                             'use the American date format with slashes')
+            raise argparse.ArgumentTypeError(
+                "%s is not a valid date/month/year; "
+                "use the American date format with slashes"
+            )
 
     @staticmethod
     def is_colorstr(arg):
@@ -3369,14 +3683,16 @@ class GooglerArgumentParser(argparse.ArgumentParser):
         except AssertionError:
             errlog.argparse('%s is not a valid color string' % arg)
             raise argparse.ArgumentTypeError('%s is not a valid color string' % arg)
+
         return arg
 
 
 # Self-upgrade mechanism
 
+
 def system_is_windows():
     """Checks if the underlying system is Windows (Cygwin included)."""
-    return sys.platform in {'win32', 'cygwin'}
+    return sys.platform in {"win32", "cygwin"}
 
 
 def get_latest_ref(include_git=False):
@@ -3385,23 +3701,28 @@ def get_latest_ref(include_git=False):
 
     if include_git:
         # Get SHA of latest commit on master
-        request = urllib.request.Request('%s/commits/master' % API_REPO_BASE,
-                                         headers={'Accept': 'application/vnd.github.v3.sha'})
+        request = urllib.request.Request(
+            "%s/commits/master" % API_REPO_BASE,
+            headers={"Accept": "application/vnd.github.v3.sha"},
+        )
         response = urllib.request.urlopen(request)
         if response.status != 200:
             errlog.exception(response.reason)
             raise http.client.HTTPException(response.reason)
-        return response.read().decode('utf-8')
+        return response.read().decode("utf-8")
     else:
         # Get name of latest tag
-        request = urllib.request.Request('%s/releases?per_page=1' % API_REPO_BASE,
-                                         headers={'Accept': 'application/vnd.github.v3+json'})
+        request = urllib.request.Request(
+            "%s/releases?per_page=1" % API_REPO_BASE,
+            headers={"Accept": "application/vnd.github.v3+json"},
+        )
         response = urllib.request.urlopen(request)
         if response.status != 200:
             errlog.exception(response.reason)
             raise http.client.HTTPException(response.reason)
         import json
-        return json.loads(response.read().decode('utf-8'))[0]['tag_name']
+
+        return json.loads(response.read().decode("utf-8"))[0]["tag_name"]
 
 
 def download_latest_googler(include_git=False):
@@ -3426,15 +3747,17 @@ def download_latest_googler(include_git=False):
     """
     # Download googler to a tempfile
     git_ref = get_latest_ref(include_git=include_git)
-    googler_download_url = '%s/%s/googler' % (RAW_DOWNLOAD_REPO_BASE, git_ref)
-    printerr('Downloading %s' % googler_download_url)
-    request = urllib.request.Request(googler_download_url,
-                                     headers={'Accept-Encoding': 'gzip'})
+    googler_download_url = "%s/%s/googler" % (RAW_DOWNLOAD_REPO_BASE, git_ref)
+    printerr("Downloading %s" % googler_download_url)
+    request = urllib.request.Request(
+        googler_download_url, headers={"Accept-Encoding": "gzip"}
+    )
     import tempfile
+
     fd, path = tempfile.mkstemp()
     atexit.register(lambda: os.remove(path) if os.path.exists(path) else None)
     os.close(fd)
-    with open(path, 'wb') as fp:
+    with open(path, "wb") as fp:
         with urllib.request.urlopen(request) as response:
             if response.status != 200:
                 errlog.exception(response.reason)
@@ -3472,7 +3795,7 @@ def self_replace(path):
 
     """
     if system_is_windows():
-        raise NotImplementedError('Self upgrade not supported on Windows.')
+        raise NotImplementedError("Self upgrade not supported on Windows.")
 
     import filecmp
     import shutil
@@ -3502,9 +3825,9 @@ def self_upgrade(include_git=False):
     """
     git_ref, path = download_latest_googler(include_git=include_git)
     if self_replace(path):
-        printerr('Upgraded to %s.' % git_ref)
+        printerr("Upgraded to %s." % git_ref)
     else:
-        printerr('Already up to date.')
+        printerr("Already up to date.")
 
 
 def check_new_version():
@@ -3520,12 +3843,14 @@ def check_new_version():
                         return int(s)
                     except ValueError:
                         return 0
-                return tuple.__new__(cls, [parseint(s) for s in version_str.split('.')])
+
+                return tuple.__new__(cls, [parseint(s) for s in version_str.split(".")])
 
     import pathlib
     import tempfile
     import time
-    cache = pathlib.Path(tempfile.gettempdir()) / 'googler-latest-version'
+
+    cache = pathlib.Path(tempfile.gettempdir()) / "googler-latest-version"
     latest_version_str = None
     # Try to load latest version string from cached location, if it
     # exists and is fresh enough.
@@ -3536,7 +3861,7 @@ def check_new_version():
         pass
     if not latest_version_str:
         try:
-            latest_version_str = get_latest_ref().lstrip('v')
+            latest_version_str = get_latest_ref().lstrip("v")
             cache.write_text(latest_version_str)
         except Exception:
             pass
@@ -3549,46 +3874,49 @@ def check_new_version():
     except ValueError:
         return
     if latest_version > current_version:
-        print('\x1b[33;1mThe latest release of googler is v%s, please upgrade.\x1b[0m'
-              % latest_version_str,
-              file=sys.stderr)
+        print(
+            "\x1b[33;1mThe latest release of googler is v%s, please upgrade.\x1b[0m"
+            % latest_version_str,
+            file=sys.stderr,
+        )
 
 
 # Miscellaneous functions
 
+
 def python_version():
-    return '%d.%d.%d' % sys.version_info[:3]
+    return "%d.%d.%d" % sys.version_info[:3]
 
 
 def https_proxy_from_environment():
-    return os.getenv('https_proxy')
+    return os.getenv("https_proxy")
 
 
 def parse_proxy_spec(proxyspec):
-    if '://' in proxyspec:
-        pos = proxyspec.find('://')
+    if "://" in proxyspec:
+        pos = proxyspec.find("://")
         scheme = proxyspec[:pos]
-        proxyspec = proxyspec[pos+3:]
-        if scheme.lower() != 'http':
+        proxyspec = proxyspec[pos + 3 :]
+        if scheme.lower() != "http":
             # Only support HTTP proxies.
             #
             # In particular, we don't support HTTPS proxies since we
             # only speak plain HTTP to the proxy server, so don't give
             # users a false sense of security.
-            raise NotImplementedError('Unsupported proxy scheme %s.' % scheme)
+            raise NotImplementedError("Unsupported proxy scheme %s." % scheme)
 
-    if '@' in proxyspec:
-        pos = proxyspec.find('@')
+    if "@" in proxyspec:
+        pos = proxyspec.find("@")
         user_passwd = urllib.parse.unquote(proxyspec[:pos])
         # Remove trailing '/' if any
-        host_port = proxyspec[pos+1:].rstrip('/')
+        host_port = proxyspec[pos + 1 :].rstrip("/")
     else:
         user_passwd = None
-        host_port = proxyspec.rstrip('/')
+        host_port = proxyspec.rstrip("/")
 
-    if ':' not in host_port:
+    if ":" not in host_port:
         # Use port 1080 as default, following curl.
-        host_port += ':1080'
+        host_port += ":1080"
 
     return user_passwd, host_port
 
@@ -3597,21 +3925,22 @@ def set_win_console_mode():
     # VT100 control sequences are supported on Windows 10 Anniversary Update and later.
     # https://docs.microsoft.com/en-us/windows/console/console-virtual-terminal-sequences
     # https://docs.microsoft.com/en-us/windows/console/setconsolemode
-    if platform.release() == '10':
+    if platform.release() == "10":
         STD_OUTPUT_HANDLE = -11
         STD_ERROR_HANDLE = -12
         ENABLE_VIRTUAL_TERMINAL_PROCESSING = 0x0004
         try:
             from ctypes import windll, wintypes, byref
+
             kernel32 = windll.kernel32
             for nhandle in (STD_OUTPUT_HANDLE, STD_ERROR_HANDLE):
                 handle = kernel32.GetStdHandle(nhandle)
                 old_mode = wintypes.DWORD()
                 if not kernel32.GetConsoleMode(handle, byref(old_mode)):
-                    raise RuntimeError('GetConsoleMode failed')
+                    raise RuntimeError("GetConsoleMode failed")
                 new_mode = old_mode.value | ENABLE_VIRTUAL_TERMINAL_PROCESSING
                 if not kernel32.SetConsoleMode(handle, new_mode):
-                    raise RuntimeError('SetConsoleMode failed')
+                    raise RuntimeError("SetConsoleMode failed")
             # Note: No need to restore at exit. SetConsoleMode seems to
             # be limited to the calling process.
         except Exception:
@@ -3634,12 +3963,15 @@ def completer_fetch_completions(prefix):
 
     # One can pass the 'hl' query param to specify the language. We
     # ignore that for now.
-    api_url = ('https://www.google.com/complete/search?client=psy-ab&q=%s' %
-               urllib.parse.quote(prefix, safe=''))
+    api_url = (
+        "https://www.google.com/complete/search?client=psy-ab&q=%s"
+        % urllib.parse.quote(prefix, safe="")
+    )
     # A timeout of 3 seconds seems to be overly generous already.
     resp = urllib.request.urlopen(api_url, timeout=3)
     charset = resp.headers.get_content_charset()
     errlog.debug('Completions charset: %s', charset)
+
     respobj = json.loads(resp.read().decode(charset))
 
     # The response object, once parsed as JSON, should look like
@@ -3653,15 +3985,15 @@ def completer_fetch_completions(prefix):
     #
     # Note the each result entry need not have two members; e.g., for
     # 'gi', there is an entry ['gi<b>f</b>', 0, [131]].
-    HTML_TAG = re.compile(r'<[^>]+>')
-    return [html.unescape(HTML_TAG.sub('', entry[0])) for entry in respobj[1]]
+    HTML_TAG = re.compile(r"<[^>]+>")
+    return [html.unescape(HTML_TAG.sub("", entry[0])) for entry in respobj[1]]
 
 
 def completer_run(prefix):
     if prefix:
         completions = completer_fetch_completions(prefix)
         if completions:
-            print('\n'.join(completions))
+            print("\n".join(completions))
     sys.exit(0)
 
 
@@ -3681,91 +4013,194 @@ def parse_args(args=None, namespace=None):
         Namespace with parsed arguments / options.
 
     """
+
     colorstr_env = os.getenv('GOOGLER_COLORS')
 
-    argparser = GooglerArgumentParser(description='Google from the command-line.')
+
+    argparser = GooglerArgumentParser(description="Google from the command-line.")
     addarg = argparser.add_argument
-    addarg('-s', '--start', type=argparser.nonnegative_int, default=0,
-           metavar='N', help='start at the Nth result')
-    addarg('-n', '--count', dest='num', type=argparser.positive_int,
-           default=10, metavar='N', help='show N results (default 10)')
-    addarg('-N', '--news', action='store_true',
-           help='show results from news section')
-    addarg('-V', '--videos', action='store_true',
-           help='show results from videos section')
-    addarg('-c', '--tld', metavar='TLD',
-           help="""country-specific search with top-level domain .TLD, e.g., 'in'
-           for India""")
-    addarg('-l', '--lang', metavar='LANG', help='display in language LANG')
-    addarg('-g', '--geoloc', metavar='CC',
-           help="""country-specific geolocation search with country code CC, e.g.
-           'in' for India. Country codes are the same as top-level domains""")
-    addarg('-x', '--exact', action='store_true',
-           help='disable automatic spelling correction')
-    addarg('--colorize', nargs='?', choices=['auto', 'always', 'never'],
-           const='always', default='auto',
-           help="""whether to colorize output; defaults to 'auto', which enables
+    addarg(
+        "-s",
+        "--start",
+        type=argparser.nonnegative_int,
+        default=0,
+        metavar="N",
+        help="start at the Nth result",
+    )
+    addarg(
+        "-n",
+        "--count",
+        dest="num",
+        type=argparser.positive_int,
+        default=10,
+        metavar="N",
+        help="show N results (default 10)",
+    )
+    addarg("-N", "--news", action="store_true", help="show results from news section")
+    addarg(
+        "-V", "--videos", action="store_true", help="show results from videos section"
+    )
+    addarg(
+        "-c",
+        "--tld",
+        metavar="TLD",
+        help="""country-specific search with top-level domain .TLD, e.g., 'in'
+           for India""",
+    )
+    addarg("-l", "--lang", metavar="LANG", help="display in language LANG")
+    addarg(
+        "-g",
+        "--geoloc",
+        metavar="CC",
+        help="""country-specific geolocation search with country code CC, e.g.
+           'in' for India. Country codes are the same as top-level domains""",
+    )
+    addarg(
+        "-x",
+        "--exact",
+        action="store_true",
+        help="disable automatic spelling correction",
+    )
+    addarg(
+        "--colorize",
+        nargs="?",
+        choices=["auto", "always", "never"],
+        const="always",
+        default="auto",
+        help="""whether to colorize output; defaults to 'auto', which enables
            color when stdout is a tty device; using --colorize without an argument
-           is equivalent to --colorize=always""")
-    addarg('-C', '--nocolor', action='store_true',
-           help='equivalent to --colorize=never')
-    addarg('--colors', dest='colorstr', type=argparser.is_colorstr,
-           default=colorstr_env if colorstr_env else 'GKlgxy', metavar='COLORS',
-           help='set output colors (see man page for details)')
-    addarg('-j', '--first', '--lucky', dest='lucky', action='store_true',
-           help='open the first result in web browser and exit')
-    addarg('-t', '--time', dest='duration', type=argparser.is_duration,
-           metavar='dN', help='time limit search '
-           '[h5 (5 hrs), d5 (5 days), w5 (5 weeks), m5 (5 months), y5 (5 years)]')
-    addarg('--from', type=argparser.is_date,
-           help="""starting date/month/year of date range; must use American date
+           is equivalent to --colorize=always""",
+    )
+    addarg(
+        "-C", "--nocolor", action="store_true", help="equivalent to --colorize=never"
+    )
+    addarg(
+        "--colors",
+        dest="colorstr",
+        type=argparser.is_colorstr,
+        default=colorstr_env if colorstr_env else "GKlgxy",
+        metavar="COLORS",
+        help="set output colors (see man page for details)",
+    )
+    addarg(
+        "-j",
+        "--first",
+        "--lucky",
+        dest="lucky",
+        action="store_true",
+        help="open the first result in web browser and exit",
+    )
+    addarg(
+        "-t",
+        "--time",
+        dest="duration",
+        type=argparser.is_duration,
+        metavar="dN",
+        help="time limit search "
+        "[h5 (5 hrs), d5 (5 days), w5 (5 weeks), m5 (5 months), y5 (5 years)]",
+    )
+    addarg(
+        "--from",
+        type=argparser.is_date,
+        help="""starting date/month/year of date range; must use American date
            format with slashes, e.g., 2/24/2020, 2/2020, 2020; can be used in
-           conjunction with --to, and overrides -t, --time""")
-    addarg('--to', type=argparser.is_date,
-           help='ending date/month/year of date range; see --from')
-    addarg('-w', '--site', dest='sites', action='append', metavar='SITE',
-           help='search a site using Google')
-    addarg('-e', '--exclude', dest='exclude', action='append', metavar='SITE',
-           help='exclude site from results')
-    addarg('--unfilter', action='store_true', help='do not omit similar results')
-    addarg('-p', '--proxy', default=https_proxy_from_environment(),
-           help="""tunnel traffic through an HTTP proxy;
-           PROXY is of the form [http://][user:password@]proxyhost[:port]""")
-    addarg('--noua', action='store_true', help=argparse.SUPPRESS)
-    addarg('--notweak', action='store_true',
-           help='disable TCP optimizations and forced TLS 1.2')
-    addarg('--json', action='store_true',
-           help='output in JSON format; implies --noprompt')
-    addarg('--url-handler', metavar='UTIL',
-           help='custom script or cli utility to open results')
-    addarg('--show-browser-logs', action='store_true',
-           help='do not suppress browser output (stdout and stderr)')
-    addarg('--np', '--noprompt', dest='noninteractive', action='store_true',
-           help='search and exit, do not prompt')
-    addarg('-4', '--ipv4', action='store_const', dest='address_family',
-           const=socket.AF_INET, default=0,
-           help="""only connect over IPv4
-           (by default, IPv4 is preferred but IPv6 is used as a fallback)""")
-    addarg('-6', '--ipv6', action='store_const', dest='address_family',
-           const=socket.AF_INET6, default=0,
-           help='only connect over IPv6')
-    addarg('keywords', nargs='*', metavar='KEYWORD', help='search keywords')
+           conjunction with --to, and overrides -t, --time""",
+    )
+    addarg(
+        "--to",
+        type=argparser.is_date,
+        help="ending date/month/year of date range; see --from",
+    )
+    addarg(
+        "-w",
+        "--site",
+        dest="sites",
+        action="append",
+        metavar="SITE",
+        help="search a site using Google",
+    )
+    addarg(
+        "-e",
+        "--exclude",
+        dest="exclude",
+        action="append",
+        metavar="SITE",
+        help="exclude site from results",
+    )
+    addarg("--unfilter", action="store_true", help="do not omit similar results")
+    addarg(
+        "-p",
+        "--proxy",
+        default=https_proxy_from_environment(),
+        help="""tunnel traffic through an HTTP proxy;
+           PROXY is of the form [http://][user:password@]proxyhost[:port]""",
+    )
+    addarg("--noua", action="store_true", help=argparse.SUPPRESS)
+    addarg(
+        "--notweak",
+        action="store_true",
+        help="disable TCP optimizations and forced TLS 1.2",
+    )
+    addarg(
+        "--json", action="store_true", help="output in JSON format; implies --noprompt"
+    )
+    addarg(
+        "--url-handler",
+        metavar="UTIL",
+        help="custom script or cli utility to open results",
+    )
+    addarg(
+        "--show-browser-logs",
+        action="store_true",
+        help="do not suppress browser output (stdout and stderr)",
+    )
+    addarg(
+        "--np",
+        "--noprompt",
+        dest="noninteractive",
+        action="store_true",
+        help="search and exit, do not prompt",
+    )
+    addarg(
+        "-4",
+        "--ipv4",
+        action="store_const",
+        dest="address_family",
+        const=socket.AF_INET,
+        default=0,
+        help="""only connect over IPv4
+           (by default, IPv4 is preferred but IPv6 is used as a fallback)""",
+    )
+    addarg(
+        "-6",
+        "--ipv6",
+        action="store_const",
+        dest="address_family",
+        const=socket.AF_INET6,
+        default=0,
+        help="only connect over IPv6",
+    )
+    addarg("keywords", nargs="*", metavar="KEYWORD", help="search keywords")
     if ENABLE_SELF_UPGRADE_MECHANISM and not system_is_windows():
-        addarg('-u', '--upgrade', action='store_true',
-               help='perform in-place self-upgrade')
-        addarg('--include-git', action='store_true',
-               help='when used with --upgrade, get latest git master')
-    addarg('-v', '--version', action='version', version=_VERSION_)
-    addarg('-d', '--debug', action='store_true', help='enable debugging')
+        addarg(
+            "-u", "--upgrade", action="store_true", help="perform in-place self-upgrade"
+        )
+        addarg(
+            "--include-git",
+            action="store_true",
+            help="when used with --upgrade, get latest git master",
+        )
+    addarg("-v", "--version", action="version", version=_VERSION_)
+    addarg("-d", "--debug", action="store_true", help="enable debugging")
     # Hidden option for interacting with DOM in an IPython/pdb shell
-    addarg('-D', '--debugger', action='store_true', help=argparse.SUPPRESS)
+    addarg("-D", "--debugger", action="store_true", help=argparse.SUPPRESS)
     # Hidden option for parsing dumped HTML
-    addarg('--parse', dest='html_file', help=argparse.SUPPRESS)
-    addarg('--complete', help=argparse.SUPPRESS)
+    addarg("--parse", dest="html_file", help=argparse.SUPPRESS)
+    addarg("--complete", help=argparse.SUPPRESS)
 
     parsed = argparser.parse_args(args, namespace)
     if parsed.nocolor:
-        parsed.colorize = 'never'
+        parsed.colorize = "never"
 
     return parsed
 
@@ -3781,6 +4216,7 @@ def main():
             errlog.debug('googler version %s', _VERSION_)
             errlog.debug('Python version %s', python_version())
             errlog.debug('Platform: %s', platform.platform())
+
             check_new_version()
 
         if opts.debugger:
@@ -3792,7 +4228,7 @@ def main():
             completer_run(opts.complete)
 
         # Handle self-upgrade
-        if hasattr(opts, 'upgrade') and opts.upgrade:
+        if hasattr(opts, "upgrade") and opts.upgrade:
             self_upgrade(include_git=opts.include_git)
             sys.exit(0)
 
@@ -3801,28 +4237,28 @@ def main():
         if opts.keywords:
             try:
                 # Add cmdline args to readline history
-                readline.add_history(' '.join(opts.keywords))
+                readline.add_history(" ".join(opts.keywords))
             except Exception:
                 pass
 
         # Set colors
-        if opts.colorize == 'always':
+        if opts.colorize == "always":
             colorize = True
-        elif opts.colorize == 'auto':
+        elif opts.colorize == "auto":
             colorize = sys.stdout.isatty()
         else:  # opts.colorize == 'never'
             colorize = False
 
         if colorize:
-            colors = Colors(*[COLORMAP[c] for c in opts.colorstr], reset=COLORMAP['x'])
+            colors = Colors(*[COLORMAP[c] for c in opts.colorstr], reset=COLORMAP["x"])
         else:
             colors = None
         Result.colors = colors
-        Result.urlexpand = True if os.getenv('DISABLE_URL_EXPANSION') is None else False
+        Result.urlexpand = True if os.getenv("DISABLE_URL_EXPANSION") is None else False
         GooglerCmd.colors = colors
 
         # Try to enable ANSI color support in cmd or PowerShell on Windows 10
-        if sys.platform == 'win32' and sys.stdout.isatty() and colorize:
+        if sys.platform == "win32" and sys.stdout.isatty() and colorize:
             set_win_console_mode()
 
         if opts.url_handler is not None:
@@ -3832,13 +4268,14 @@ def main():
             open_url.override_text_browser = False
 
             # Handle browser output suppression
-            if opts.show_browser_logs or (os.getenv('BROWSER') in text_browsers):
+            if opts.show_browser_logs or (os.getenv("BROWSER") in text_browsers):
                 open_url.suppress_browser_output = False
             else:
                 open_url.suppress_browser_output = True
 
         if opts.noua:
             errlog.warning('--noua option has been deprecated and has no effect (see #284)')
+
 
         repl = GooglerCmd(opts)
 
@@ -3849,7 +4286,7 @@ def main():
                 if repl.results:
                     open_url(repl.results[0].url)
                 else:
-                    print('No results.', file=sys.stderr)
+                    print("No results.", file=sys.stderr)
             else:
                 repl.showing_results_for_alert(interactive=False)
                 repl.display_results(json_output=opts.json)
@@ -3866,5 +4303,6 @@ def main():
             errlog.error(e)
             sys.exit(1)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()
